@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Plus, Brain } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 
 const catColors: Record<string, string> = {
@@ -18,10 +19,19 @@ export default function DashboardPage() {
   const [recentDecisions, setRecentDecisions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const { data: session } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchData() {
       try {
+        // Check onboarding completion
+        const compRes = await fetch("/api/companion")
+        const compData = await compRes.json()
+        if (compData.profile && compData.profile.onboardingStage < 6) {
+          router.push("/companion")
+          return
+        }
+
         const res = await fetch("/api/decisions")
         const data = await res.json()
         if (Array.isArray(data)) {
@@ -113,8 +123,13 @@ export default function DashboardPage() {
               </Link>
             ))
           ) : (
-            <div className="text-center py-10 bg-white/5 rounded-2xl border-2 border-dashed border-white/10">
-              <p className="text-zinc-500 text-sm">No decisions yet</p>
+            <div className="text-center py-10 bg-white/5 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3">
+              <p className="text-zinc-500 text-sm">No decisions logged yet</p>
+              <Link href="/add">
+                <button className="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors cursor-pointer">
+                  Log Your First Decision
+                </button>
+              </Link>
             </div>
           )}
         </div>

@@ -1,0 +1,23 @@
+import type { NextAuthConfig } from "next-auth";
+
+export const authConfig = {
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id = token.id;
+      }
+      return session;
+    },
+  },
+  providers: [], // Added in auth.ts to keep middleware Edge-compatible
+} satisfies NextAuthConfig;

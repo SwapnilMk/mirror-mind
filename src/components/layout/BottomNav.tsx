@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, History, Brain, BarChart3, User } from "lucide-react"
+import { Home, MessageSquare, Brain, BarChart3, User } from "lucide-react"
 
 const tabs = [
   { id: "dashboard", label: "Home", icon: Home, href: "/dashboard" },
-  { id: "decisions", label: "History", icon: History, href: "/decisions" },
+  { id: "companion", label: "Companion", icon: MessageSquare, href: "/companion" },
   { id: "simulate", label: "Ask", icon: Brain, href: "/simulate" },
   { id: "patterns", label: "Patterns", icon: BarChart3, href: "/patterns" },
   { id: "profile", label: "Me", icon: User, href: "/profile" },
@@ -14,6 +14,9 @@ const tabs = [
 
 export default function BottomNav() {
   const pathname = usePathname()
+
+  const isPublicRoute = ["/login", "/signup", "/"].includes(pathname);
+  if (isPublicRoute) return null;
 
   return (
     <div className="flex items-center justify-around border border-white/5 bg-[#0d0d14]/90 backdrop-blur-xl py-3 px-2 h-[72px] sm:rounded-t-[32px] shadow-2xl">

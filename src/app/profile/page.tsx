@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bell, Shield, LogOut, ChevronRight, Download, HelpCircle } from "lucide-react"
+import { Bell, Shield, LogOut, ChevronRight, Download, HelpCircle, History } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
   const [stats, setStats] = useState({ total: 0, good: 0, avgConfidence: 0 })
@@ -29,6 +30,75 @@ export default function ProfilePage() {
     fetchData()
   }, [])
 
+  const handleExportDecisions = async () => {
+    try {
+      const res = await fetch("/api/decisions")
+      if (!res.ok) throw new Error("Failed to fetch decisions")
+      const data = await res.json()
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.info("No decisions recorded yet to export.")
+        return
+      }
+
+      const headers = ["Title", "Category", "Choice", "Confidence", "Outcome", "Reasoning", "Created At"]
+      const csvRows = [
+        headers.join(","),
+        ...data.map(d => {
+          const values = [
+            d.title || "",
+            d.category || "",
+            d.choice || "",
+            d.confidence ?? "",
+            d.outcome || "",
+            d.reasoning || "",
+            d.createdAt ? new Date(d.createdAt).toISOString() : ""
+          ]
+          return values.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
+        })
+      ]
+
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"))
+      const downloadAnchor = document.createElement("a")
+      downloadAnchor.setAttribute("href", csvContent)
+      downloadAnchor.setAttribute("download", `mirrormind_decisions_${new Date().toISOString().split('T')[0]}.csv`)
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      toast.success("Decisions exported successfully!")
+    } catch (error) {
+      console.error("Failed to export decisions", error)
+      toast.error("Failed to export decisions. Please try again.")
+    }
+  }
+
+  const settingsItems = [
+    {
+      label: "Decision History",
+      icon: History,
+      href: "/decisions",
+    },
+    {
+      label: "Notifications",
+      icon: Bell,
+      href: "/profile/notifications",
+    },
+    {
+      label: "Export Decisions",
+      icon: Download,
+      href: "/profile/export",
+    },
+    {
+      label: "Privacy & Security",
+      icon: Shield,
+      href: "/profile/privacy",
+    },
+    {
+      label: "Help & Support",
+      icon: HelpCircle,
+      href: "/profile/support",
+    },
+  ]
+
   return (
     <div className="flex flex-col min-h-screen bg-[#080810] text-white">
       <div className="px-5 pt-10 pb-24">
@@ -40,7 +110,7 @@ export default function ProfilePage() {
             {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "EX"}
           </div>
           <h2 className="text-white text-lg font-bold">{session?.user?.name || "Explorer"}</h2>
-          <p className="text-zinc-500 text-sm">{session?.user?.email || "explorer@mirrormind.ai"}</p>
+          <p className="text-zinc-500 text-sm">{session?.user?.email || ""}</p>
           <div className="mt-2 px-3 py-1 rounded-full bg-violet-900/40 border border-violet-700/40">
             <p className="text-violet-300 text-xs font-medium">Pro Member</p>
           </div>
@@ -64,17 +134,16 @@ export default function ProfilePage() {
 
         {/* Settings */}
         <div className="bg-[#13131e] border border-white/6 rounded-2xl overflow-hidden mb-4">
-          {[
-            { label: "Notifications", icon: Bell },
-            { label: "Export Decisions", icon: Download },
-            { label: "Privacy & Security", icon: Shield },
-            { label: "Help & Support", icon: HelpCircle },
-          ].map((item, i) => (
-            <button key={i} className="w-full flex items-center gap-3 px-4 py-4 border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors group text-left">
+          {settingsItems.map((item, i) => (
+            <Link
+              key={i}
+              href={item.href}
+              className="w-full flex items-center gap-3 px-4 py-4 border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors group text-left cursor-pointer"
+            >
               <item.icon size={18} className="text-zinc-500 group-hover:text-violet-400 transition-colors" />
               <span className="text-zinc-300 text-sm flex-1">{item.label}</span>
               <ChevronRight size={16} className="text-zinc-700" />
-            </button>
+            </Link>
           ))}
         </div>
 
