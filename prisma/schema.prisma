@@ -3,12 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   image         String?
@@ -19,8 +20,8 @@ model User {
 }
 
 model Decision {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String?   @db.ObjectId
+  id          String    @id @default(cuid())
+  userId      String?
   title       String
   situation   String
   choice      String
@@ -35,7 +36,7 @@ model Decision {
 }
 
 model Review {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid())
   name      String
   rating    Float
   content   String
@@ -44,8 +45,8 @@ model Review {
 }
 
 model ProfileMemory {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String   @unique @db.ObjectId
+  id                 String   @id @default(cuid())
+  userId             String   @unique
   name               String?
   preferredName      String?
   age                Int?
@@ -72,8 +73,8 @@ model ProfileMemory {
 }
 
 model EpisodicMemory {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String   @db.ObjectId
+  id         String   @id @default(cuid())
+  userId     String
   event      String
   emotion    String?
   importance Int      @default(5) // 1 to 10
@@ -83,10 +84,9 @@ model EpisodicMemory {
 }
 
 model CompanionMessage {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(cuid())
+  userId    String
   role      String   // "user" or "assistant"
   content   String
   createdAt DateTime @default(now())
 }
-
