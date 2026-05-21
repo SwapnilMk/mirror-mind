@@ -44,6 +44,7 @@ export async function POST(req: Request) {
     const llm = new ChatOpenAI({
       apiKey: process.env.AI_API_KEY,
       configuration: {
+        apiKey: process.env.AI_API_KEY,
         baseURL: process.env.AI_BASE_URL + "/v1",
       },
       modelName: process.env.AI_MODEL || "claude-sonnet-4-6",

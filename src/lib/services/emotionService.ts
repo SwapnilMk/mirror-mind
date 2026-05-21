@@ -1,0 +1,84 @@
+import { prisma } from "@/lib/prisma"
+import { ChatOpenAI } from "@langchain/openai"
+import { EMOTION_ANALYSIS_PROMPT } from "@/prompts/emotion"
+
+export class EmotionService {
+  private static llm = new ChatOpenAI({
+    apiKey: process.env.AI_API_KEY,
+    configuration: {
+      apiKey: process.env.AI_API_KEY,
+      baseURL: process.env.AI_BASE_URL + "/v1",
+    },
+    modelName: process.env.AI_MODEL || "claude-sonnet-4-6",
+    temperature: 0.1,
+  })
+
+  /**
+   * Analyzes a user message, extracts emotional characteristics, and persists the data.
+   */
+  static async analyzeAndSave(userId: string, message: string, messageId?: string) {
+    try {
+      const prompt = EMOTION_ANALYSIS_PROMPT.replace("{message}", message)
+      
+      const response = await this.llm.invoke(prompt)
+      const rawContent = (response.content as string).trim()
+      
+      let cleanContent = rawContent
+      if (cleanContent.startsWith("```json")) {
+        cleanContent = cleanContent.slice(7)
+      }
+      if (cleanContent.startsWith("```")) {
+        cleanContent = cleanContent.slice(3)
+      }
+      if (cleanContent.endsWith("```")) {
+        cleanContent = cleanContent.slice(0, -3)
+      }
+      cleanContent = cleanContent.trim()
+
+      const data = JSON.parse(cleanContent)
+
+      // Save to database
+      const analysis = await prisma.emotionAnalysis.create({
+        data: {
+          userId,
+          messageId,
+          dominantEmotion: data.dominantEmotion || "Neutral",
+          intensity: data.intensity !== undefined ? Number(data.intensity) : 0.5,
+          confidence: data.confidence !== undefined ? Number(data.confidence) : 0.8,
+          sentiment: data.sentiment || "neutral",
+          avoidance: !!data.avoidance,
+          overthinking: !!data.overthinking,
+        }
+      })
+
+      return analysis
+    } catch (error) {
+      console.error("Failed to analyze user emotion:", error)
+      
+      // Fallback save in case of AI parsing failure
+      return await prisma.emotionAnalysis.create({
+        data: {
+          userId,
+          messageId,
+          dominantEmotion: "Neutral",
+          intensity: 0.5,
+          confidence: 0.5,
+          sentiment: "neutral",
+          avoidance: false,
+          overthinking: false,
+        }
+      })
+    }
+  }
+
+  /**
+   * Retrieves the user's latest emotional logs.
+   */
+  static async getLatestLogs(userId: string, limit = 10) {
+    return await prisma.emotionAnalysis.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    })
+  }
+}

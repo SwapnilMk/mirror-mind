@@ -13,7 +13,12 @@ import {
   Zap, 
   Frown, 
   Compass, 
-  ThumbsUp
+  ThumbsUp,
+  RefreshCw,
+  Target,
+  ArrowRight,
+  Shield,
+  AlertTriangle
 } from "lucide-react"
 import Link from "next/link"
 
@@ -28,26 +33,27 @@ const catColors: Record<string, string> = {
 
 export default function PatternsPage() {
   const [decisions, setDecisions] = useState<any[]>([])
-  const [patternsData, setPatternsData] = useState<any>(null)
+  const [reflections, setReflections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
   const [activeTab, setActiveTab] = useState("profile") // "profile" | "shadows" | "timeline" | "emotions"
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [decisionsRes, patternsRes] = await Promise.all([
+        const [decisionsRes, reflectionsRes] = await Promise.all([
           fetch("/api/decisions"),
-          fetch("/api/patterns")
+          fetch("/api/reflections")
         ])
-        const [decisionsData, patData] = await Promise.all([
+        const [decisionsData, refData] = await Promise.all([
           decisionsRes.json(),
-          patternsRes.json()
+          reflectionsRes.json()
         ])
         if (Array.isArray(decisionsData)) {
           setDecisions(decisionsData)
         }
-        if (patData && !patData.error) {
-          setPatternsData(patData)
+        if (Array.isArray(refData)) {
+          setReflections(refData)
         }
       } catch (error) {
         console.error("Failed to fetch patterns data", error)
@@ -57,6 +63,24 @@ export default function PatternsPage() {
     }
     fetchData()
   }, [])
+
+  const handleGenerateReflection = async () => {
+    setGenerating(true)
+    try {
+      const res = await fetch("/api/reflections", { method: "POST" })
+      const data = await res.json()
+      if (data && !data.error) {
+        setReflections(prev => [data, ...prev])
+      } else {
+        alert(data.error || "Failed to generate reflection report")
+      }
+    } catch (error) {
+      console.error("Error generating reflection:", error)
+      alert("An unexpected error occurred while compiling your reflection report.")
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   // Derived Statistics for Profiles/Analytics
   const total = decisions.length
@@ -89,12 +113,14 @@ export default function PatternsPage() {
     return acc
   }, {})
 
+  const latestReflection = reflections[0] || null
+
   return (
     <div className="flex flex-col min-h-screen bg-[#080810] text-white">
       <div className="px-5 pt-10 pb-24">
         <h1 className="text-xl font-bold text-white mb-1">Patterns</h1>
         <p className="text-zinc-500 text-xs mb-5">
-          Deep behavioral diagnostics based on {total} decision logs
+          Deep behavioral diagnostics based on {total} decision logs and {reflections.length} reflection audits
         </p>
 
         {/* Tab Selection */}
@@ -133,91 +159,94 @@ export default function PatternsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-4 pb-20">
+            {/* GENERATING OVERLAY CARD */}
+            {generating && (
+              <div className="bg-[#13131e] border border-violet-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3 shadow-xl">
+                <RefreshCw size={24} className="text-violet-400 animate-spin" />
+                <p className="text-white font-bold text-sm">Compiling Behavioral Reflection...</p>
+                <p className="text-zinc-400 text-xs leading-relaxed max-w-[280px]">
+                  MirrorMind is auditing your choice structures, emotional spikes, and repeating loops. This will take a moment.
+                </p>
+              </div>
+            )}
+
             {/* PROFILE TAB */}
             {activeTab === "profile" && (
               <>
-                {/* Risk style */}
-                <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Compass size={16} className="text-violet-400" />
-                    <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Risk Profile Style</p>
-                  </div>
-                  <p className="text-white font-bold text-base mb-1">
-                    {patternsData?.riskStyle || "Balanced Explorer"}
-                  </p>
-                  <p className="text-zinc-400 text-xs leading-relaxed">
-                    {patternsData?.riskDesc || "Add more decisions to unlock personalized risk assessments."}
-                  </p>
-                </div>
-
-                {/* Speed */}
-                <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap size={15} className="text-violet-400" />
-                    <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Deliberation Speed</p>
-                  </div>
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <p className="text-white font-bold text-base">{patternsData?.decisionSpeed || "Consistent"}</p>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className={`w-4 h-1.5 rounded-full ${i <= (patternsData?.decisionSpeedValue || 3) ? "bg-violet-500 shadow-[0_0_6px_rgba(139,92,246,0.3)]" : "bg-zinc-800"}`}/>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-zinc-400 text-xs leading-relaxed">
-                    {patternsData?.speedDesc || "Deliberation speed index compiles over time."}
-                  </p>
-                </div>
-
-                {/* Trust vs Logic */}
-                <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Activity size={15} className="text-violet-400" />
-                    <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Intuition vs. Logic</p>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-zinc-500 text-[10px] uppercase font-bold w-12 text-right">Feel</span>
-                    <div className="flex-1 h-2 bg-zinc-800/80 rounded-full overflow-hidden relative">
-                      <div
-                        className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
-                        style={{ width: `${patternsData?.trustVsLogic ?? 50}%` }}
-                      />
-                    </div>
-                    <span className="text-zinc-500 text-[10px] uppercase font-bold w-12 text-left">Logic</span>
-                  </div>
-                  <p className="text-center text-violet-400 text-xs font-semibold">
-                    {patternsData?.trustVsLogicText || "Highly Balanced (50%)"}
-                  </p>
-                </div>
-
-                {/* Core Patterns */}
-                {patternsData?.behavioralPatterns && patternsData.behavioralPatterns.length > 0 ? (
-                  <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4">
-                    <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-4 border-b border-white/6 pb-2">
-                      Core Behavioral Insights
-                    </p>
-                    <div className="flex flex-col gap-4">
-                      {patternsData.behavioralPatterns.map((p: any, idx: number) => (
-                        <div key={idx} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_6px_#a78bfa]" />
-                            <p className="text-white text-xs font-semibold">{p.title}</p>
-                          </div>
-                          <p className="text-zinc-400 text-xs leading-relaxed mb-1.5">{p.desc}</p>
-                          <div className="bg-[#191927] border border-white/4 p-2 rounded-lg text-[10px] text-zinc-500 font-medium italic">
-                            Recommendation: {p.impact}
-                          </div>
+                {/* Active Reflection Report */}
+                {latestReflection ? (
+                  <>
+                    <div className="bg-gradient-to-br from-[#16162a] to-[#0e0e1a] border border-violet-900/30 rounded-2xl p-5 mb-1 relative overflow-hidden group shadow-xl">
+                      <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-violet-600/10 to-transparent blur-2xl pointer-events-none" />
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 rounded-lg bg-violet-600/15 border border-violet-500/20 flex items-center justify-center text-violet-400">
+                          <Sparkles size={12} className="animate-pulse" />
                         </div>
-                      ))}
+                        <h3 className="text-xs font-bold text-violet-300 uppercase tracking-widest">Active Reflection</h3>
+                        <span className="ml-auto text-[9px] text-zinc-500">{new Date(latestReflection.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      
+                      <h4 className="text-sm font-semibold text-white leading-normal mb-2">
+                        {latestReflection.title}
+                      </h4>
+                      
+                      <p className="text-zinc-300 text-xs leading-relaxed font-medium italic">
+                        &ldquo;{latestReflection.summary}&rdquo;
+                      </p>
                     </div>
-                  </div>
+
+                    {/* Actionable Insights */}
+                    <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4">
+                      <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3 border-b border-white/6 pb-2">
+                        Cognitive Insights & Growth Levers
+                      </p>
+                      <div className="flex flex-col gap-3">
+                        {latestReflection.insights?.map((insight: string, idx: number) => (
+                          <div key={idx} className="flex gap-2.5 items-start p-2.5 rounded-xl bg-[#0a0a14] border border-white/4">
+                            <Target className="text-violet-400 mt-0.5 shrink-0" size={13} />
+                            <p className="text-zinc-300 text-xs leading-relaxed">{insight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Detected Fears & Anchors */}
+                    {latestReflection.fears?.length > 0 && (
+                      <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4">
+                        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">
+                          Identified Anchors & Fears
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {latestReflection.fears.map((fear: string, idx: number) => (
+                            <div key={idx} className="bg-rose-950/20 text-rose-300 border border-rose-900/30 px-3 py-2 rounded-xl flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                              <Shield size={12} className="text-rose-400 shrink-0" />
+                              <span>{fear}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <div className="bg-[#13131e] border border-white/6 rounded-2xl p-6 text-center text-zinc-500 text-xs">
-                    Need more decision context to run pattern models.
+                  <div className="bg-[#13131e] border border-white/6 rounded-2xl p-6 text-center flex flex-col items-center gap-4">
+                    <Brain className="text-violet-400 animate-pulse" size={28} />
+                    <div>
+                      <p className="text-white font-bold text-sm">Awaiting Reflection Report</p>
+                      <p className="text-zinc-500 text-xs leading-relaxed max-w-[260px] mt-1.5">
+                        Log choices and discuss with your Double to let the Reflection Engine build your profile.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={handleGenerateReflection}
+                      disabled={generating || total === 0}
+                      className="bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-violet-950/30"
+                    >
+                      {generating ? "Auditing Profile..." : total === 0 ? "Log Decisions First" : "Initialize Cognitive Audit"}
+                    </button>
                   </div>
                 )}
 
-                {/* Category breakdown */}
+                {/* Category breakdown (Live from local decisions) */}
                 <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4">
                   <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-4">Decisions by Category</p>
                   <div className="flex flex-col gap-3">
@@ -236,75 +265,112 @@ export default function PatternsPage() {
                     {total === 0 && <p className="text-zinc-600 text-xs italic text-center py-2">No category logs yet.</p>}
                   </div>
                 </div>
+
+                {/* Re-run button when reflection is present */}
+                {latestReflection && !generating && (
+                  <button 
+                    onClick={handleGenerateReflection}
+                    className="w-full flex items-center justify-center gap-2 border border-white/8 hover:border-violet-600/30 bg-[#13131e] hover:bg-[#151525] text-zinc-300 hover:text-white font-bold py-3 rounded-2xl text-xs transition-all cursor-pointer shadow-md"
+                  >
+                    <RefreshCw size={13} />
+                    <span>Run Reflection Engine</span>
+                  </button>
+                )}
               </>
             )}
 
             {/* CONTRADICTIONS & BIASES TAB */}
             {activeTab === "shadows" && (
               <>
-                {/* Shadow Patterns */}
-                <div className="flex flex-col gap-3">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <ShieldAlert size={16} className="text-violet-400" />
-                      Shadow Patterns
-                    </h3>
-                    <p className="text-zinc-500 text-[10px] mt-0.5">
-                      Subconscious contradictions between your stated desires and actual choices.
-                    </p>
-                  </div>
+                {latestReflection ? (
+                  <>
+                    {/* Shadow Patterns (Loops) */}
+                    <div className="flex flex-col gap-3">
+                      <div className="mb-2">
+                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                          <ShieldAlert size={16} className="text-rose-400 animate-pulse" />
+                          Emotional Loops
+                        </h3>
+                        <p className="text-zinc-500 text-[10px] mt-0.5">
+                          Detected cycles of reactive states that drive subconscious behaviors.
+                        </p>
+                      </div>
 
-                  {patternsData?.shadowPatterns && patternsData.shadowPatterns.length > 0 ? (
-                    patternsData.shadowPatterns.map((s: any, idx: number) => (
-                      <div key={idx} className="bg-[#13131e] border border-violet-900/30 hover:border-violet-600/40 rounded-2xl p-4 shadow-[0_0_15px_rgba(139,92,246,0.02)] transition-all">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Sparkles className="text-violet-400 animate-pulse" size={15} />
-                          <h4 className="text-white font-semibold text-xs">{s.title}</h4>
+                      {latestReflection.loops?.length > 0 ? (
+                        latestReflection.loops.map((loop: string, idx: number) => {
+                          const steps = loop.split(/→|->|=>/).map(s => s.trim())
+                          return (
+                            <div key={idx} className="bg-[#13131e] border border-violet-900/30 rounded-2xl p-4 shadow-[0_0_15px_rgba(139,92,246,0.02)]">
+                              <h4 className="text-white font-bold text-xs mb-3 flex items-center gap-1.5">
+                                <AlertTriangle size={13} className="text-rose-400" />
+                                Loop Pattern #{idx + 1}
+                              </h4>
+                              
+                              {/* Step Flow */}
+                              <div className="flex flex-wrap items-center gap-2 mb-3 bg-[#0a0a14] border border-white/4 p-3 rounded-xl">
+                                {steps.map((step, sIdx) => (
+                                  <div key={sIdx} className="flex items-center gap-2 flex-wrap">
+                                    <span className="bg-violet-950/30 text-violet-300 border border-violet-800/30 px-2.5 py-1 rounded-lg text-[10px] font-semibold">
+                                      {step}
+                                    </span>
+                                    {sIdx < steps.length - 1 && (
+                                      <ArrowRight size={12} className="text-zinc-600 animate-pulse shrink-0" />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              <p className="text-zinc-400 text-xs leading-relaxed italic">
+                                &ldquo;Observe how these states trigger sequentially and stall progression.&rdquo;
+                              </p>
+                            </div>
+                          )
+                        })
+                      ) : (
+                        <div className="bg-[#13131e] border border-white/6 rounded-2xl p-6 text-center text-zinc-500 text-xs">
+                          No distinct emotional loops identified in the active reflection.
                         </div>
-                        <p className="text-zinc-400 text-xs leading-relaxed mb-3">{s.desc}</p>
-                        <div className="bg-violet-950/20 border border-violet-500/15 p-2.5 rounded-xl text-[10px] text-violet-300 font-medium">
-                          💡 Recommendation: {s.suggestion}
+                      )}
+                    </div>
+
+                    {/* Avoidance Manifestations */}
+                    {latestReflection.avoidanceTrend && (
+                      <div className="flex flex-col gap-3 mt-4">
+                        <div className="mb-1">
+                          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <ShieldAlert size={16} className="text-violet-400" />
+                            Avoidance Profile
+                          </h3>
+                        </div>
+                        <div className="bg-[#13131e] border border-violet-900/30 rounded-2xl p-4 shadow-sm">
+                          <p className="text-zinc-300 text-xs leading-relaxed">
+                            {latestReflection.avoidanceTrend}
+                          </p>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="bg-[#13131e] border border-white/6 rounded-2xl p-6 text-center text-zinc-500 text-xs">
-                      No shadow contradictions detected in history yet.
-                    </div>
-                  )}
-                </div>
+                    )}
 
-                {/* Cognitive Biases */}
-                <div className="flex flex-col gap-3 mt-4">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <AlertCircle size={16} className="text-blue-400" />
-                      Cognitive Biases
-                    </h3>
-                    <p className="text-zinc-500 text-[10px] mt-0.5">
-                      Frequent mental shortcuts or heuristics that create decision biases.
-                    </p>
-                  </div>
-
-                  {patternsData?.cognitiveBiases && patternsData.cognitiveBiases.length > 0 ? (
-                    patternsData.cognitiveBiases.map((b: any, idx: number) => (
-                      <div key={idx} className="bg-[#13131e] border border-blue-900/30 hover:border-blue-600/40 rounded-2xl p-4 shadow-[0_0_15px_rgba(59,130,246,0.02)] transition-all">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertCircle className="text-blue-400" size={15} />
-                          <h4 className="text-white font-semibold text-xs">{b.title}</h4>
+                    {/* Confidence fluctuation */}
+                    {latestReflection.confidenceTrend && (
+                      <div className="flex flex-col gap-3 mt-4">
+                        <div className="mb-1">
+                          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <Activity size={16} className="text-blue-400" />
+                            Confidence & Stress Stability
+                          </h3>
                         </div>
-                        <p className="text-zinc-400 text-xs leading-relaxed mb-3">{b.desc}</p>
-                        <div className="bg-blue-950/20 border border-blue-500/15 p-2.5 rounded-xl text-[10px] text-blue-300 font-medium">
-                          🧠 Mindset Shift: {b.advice}
+                        <div className="bg-[#13131e] border border-violet-900/30 rounded-2xl p-4 shadow-sm">
+                          <p className="text-zinc-300 text-xs leading-relaxed">
+                            {latestReflection.confidenceTrend}
+                          </p>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="bg-[#13131e] border border-white/6 rounded-2xl p-6 text-center text-zinc-500 text-xs">
-                      No distinct cognitive biases isolated yet.
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="bg-[#13131e] border border-white/6 rounded-2xl p-8 text-center text-zinc-500 text-xs">
+                    Please compile your first active reflection to isolate behavioral shadows and avoidance trends.
+                  </div>
+                )}
               </>
             )}
 
@@ -432,11 +498,11 @@ export default function PatternsPage() {
                   </div>
                 </div>
 
-                {/* AI Compile Emotional Insights */}
-                {patternsData?.emotionalInsights && patternsData.emotionalInsights.length > 0 && (
+                {/* AI Memory Correlations */}
+                {latestReflection && latestReflection.insights?.length > 0 && (
                   <div className="flex flex-col gap-3 mt-3">
-                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">AI Memory Correlations</p>
-                    {patternsData.emotionalInsights.map((insight: string, idx: number) => (
+                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">AI Memory Insights</p>
+                    {latestReflection.insights.map((insight: string, idx: number) => (
                       <div key={idx} className="bg-[#13131e] border border-white/6 rounded-2xl p-4 flex gap-3 items-start hover:border-violet-900/30 transition-colors">
                         <Sparkles className="text-violet-400 shrink-0 mt-0.5" size={14} />
                         <p className="text-zinc-300 text-xs leading-relaxed">{insight}</p>
