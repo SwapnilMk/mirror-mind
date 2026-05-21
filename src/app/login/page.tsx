@@ -29,7 +29,7 @@ export default function LoginPage() {
         toast.error("Invalid email or password")
       } else {
         toast.success("Welcome back!")
-        router.push("/dashboard")
+        window.location.href = "/dashboard"
       }
     } catch (error) {
       toast.error("Something went wrong")

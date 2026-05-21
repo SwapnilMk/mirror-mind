@@ -27,7 +27,16 @@ export default function RootLayout({
           </LayoutWrapper>
         </AuthProvider>
 
-        <Toaster richColors closeButton />
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#13131e',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              color: '#fff',
+            }
+          }}
+        />
       </body>
     </html>
   );
