@@ -20,7 +20,9 @@ export default function ProfilePage() {
         if (Array.isArray(data)) {
           const total = data.length
           const good = data.filter((d: any) => d.outcome === "good").length
-          const avgConfidence = total ? Math.round(data.reduce((acc: number, d: any) => acc + d.confidence, 0) / total) : 0
+          const avgConfidence = total
+            ? Math.round(data.reduce((acc: number, d: any) => acc + d.confidence, 0) / total)
+            : 0
           setStats({ total, good, avgConfidence })
         }
       } catch (error) {
@@ -40,10 +42,18 @@ export default function ProfilePage() {
         return
       }
 
-      const headers = ["Title", "Category", "Choice", "Confidence", "Outcome", "Reasoning", "Created At"]
+      const headers = [
+        "Title",
+        "Category",
+        "Choice",
+        "Confidence",
+        "Outcome",
+        "Reasoning",
+        "Created At",
+      ]
       const csvRows = [
         headers.join(","),
-        ...data.map(d => {
+        ...data.map((d) => {
           const values = [
             d.title || "",
             d.category || "",
@@ -51,19 +61,22 @@ export default function ProfilePage() {
             d.confidence ?? "",
             d.outcome || "",
             d.reasoning || "",
-            d.createdAt ? new Date(d.createdAt).toISOString() : ""
+            d.createdAt ? new Date(d.createdAt).toISOString() : "",
           ]
-          return values.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
-        })
+          return values.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(",")
+        }),
       ]
 
       const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"))
       const downloadAnchor = document.createElement("a")
       downloadAnchor.setAttribute("href", csvContent)
-      downloadAnchor.setAttribute("download", `mirrormind_decisions_${new Date().toISOString().split('T')[0]}.csv`)
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      downloadAnchor.setAttribute(
+        "download",
+        `mirrormind_decisions_${new Date().toISOString().split("T")[0]}.csv`
+      )
+      document.body.appendChild(downloadAnchor)
+      downloadAnchor.click()
+      downloadAnchor.remove()
       toast.success("Decisions exported successfully!")
     } catch (error) {
       console.error("Failed to export decisions", error)
@@ -140,7 +153,10 @@ export default function ProfilePage() {
               href={item.href}
               className="w-full flex items-center gap-3 px-4 py-4 border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors group text-left cursor-pointer"
             >
-              <item.icon size={18} className="text-zinc-500 group-hover:text-violet-400 transition-colors" />
+              <item.icon
+                size={18}
+                className="text-zinc-500 group-hover:text-violet-400 transition-colors"
+              />
               <span className="text-zinc-300 text-sm flex-1">{item.label}</span>
               <ChevronRight size={16} className="text-zinc-700" />
             </Link>
@@ -162,7 +178,9 @@ export default function ProfilePage() {
           <div className="bg-[#1a1a27] border border-white/10 rounded-[32px] p-6 w-full max-w-sm animate-in slide-in-from-bottom duration-300">
             <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
             <h3 className="text-white font-bold text-xl mb-2 text-center">Log Out?</h3>
-            <p className="text-zinc-500 text-sm text-center mb-8">You'll need to sign back in to access your decisions archive.</p>
+            <p className="text-zinc-500 text-sm text-center mb-8">
+              You'll need to sign back in to access your decisions archive.
+            </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}

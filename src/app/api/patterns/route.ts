@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { ChatOpenAI } from "@langchain/openai"
 import { ChatPromptTemplate } from "@langchain/core/prompts"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
@@ -16,20 +16,21 @@ export async function GET() {
 
     // Fetch decisions of this user
     const decisions = await prisma.decision.findMany({
-      where: { userId }
+      where: { userId },
     })
 
     if (!decisions.length) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         hasData: false,
         riskStyle: "Analyzing...",
-        riskDesc: "Add a few decisions first to unlock personalized risk and decision style insights.",
+        riskDesc:
+          "Add a few decisions first to unlock personalized risk and decision style insights.",
         decisionSpeed: "Analyzing...",
         decisionSpeedValue: 1,
         speedDesc: "Reflection speed insights will update once you have logged multiple decisions.",
         trustVsLogic: 50,
         trustVsLogicText: "Intuition vs. Logic (50% / 50%)",
-        behavioralPatterns: []
+        behavioralPatterns: [],
       })
     }
 
@@ -45,8 +46,9 @@ export async function GET() {
     })
 
     // Format decisions history for context
-    const historyText = decisions.map((d: any, index) => {
-      return `Decision #${index + 1}:
+    const historyText = decisions
+      .map((d: any, index) => {
+        return `Decision #${index + 1}:
 Title: ${d.title}
 Category: ${d.category}
 Situation: ${d.situation}
@@ -56,7 +58,8 @@ Emotion/Mood: ${d.emotion || "Neutral"}
 Stress level: ${d.stressLevel || 5}/10
 Outcome: ${d.outcome}
 Regret Score: ${d.regretScore || 0}/10`
-    }).join("\n\n")
+      })
+      .join("\n\n")
 
     const systemPrompt = `You are MirrorMind's core behavioral profiling engine. 
 Your task is to analyze the user's decision history and compile a structured cognitive, emotional, and risk profile.
@@ -88,12 +91,12 @@ Do not wrap the JSON in markdown code blocks like \`\`\`json. Output only the ra
 
     const prompt = ChatPromptTemplate.fromMessages([
       ["system", systemPrompt],
-      ["user", "USER DECISION HISTORY:\n{history}\n\nAnalyze my behavioral profile:"]
+      ["user", "USER DECISION HISTORY:\n{history}\n\nAnalyze my behavioral profile:"],
     ])
 
     const chain = prompt.pipe(llm)
     const response = await chain.invoke({
-      history: historyText
+      history: historyText,
     })
 
     const rawContent = (response.content as string).trim()
@@ -114,7 +117,7 @@ Do not wrap the JSON in markdown code blocks like \`\`\`json. Output only the ra
       result = JSON.parse(cleanContent)
     } catch (parseErr) {
       console.error("Failed to parse AI output for patterns:", rawContent)
-      return NextResponse.json({ 
+      return NextResponse.json({
         hasData: true,
         riskStyle: "Balanced Explorer",
         riskDesc: "You tend to weigh options carefully but aren't afraid to take calculated risks.",
@@ -126,7 +129,7 @@ Do not wrap the JSON in markdown code blocks like \`\`\`json. Output only the ra
         behavioralPatterns: [],
         shadowPatterns: [],
         cognitiveBiases: [],
-        emotionalInsights: []
+        emotionalInsights: [],
       })
     }
 
@@ -142,10 +145,13 @@ Do not wrap the JSON in markdown code blocks like \`\`\`json. Output only the ra
       behavioralPatterns: result.behavioralPatterns || [],
       shadowPatterns: result.shadowPatterns || [],
       cognitiveBiases: result.cognitiveBiases || [],
-      emotionalInsights: result.emotionalInsights || []
+      emotionalInsights: result.emotionalInsights || [],
     })
   } catch (error: any) {
     console.error("Patterns API error:", error)
-    return NextResponse.json({ error: "Failed to compile patterns: " + error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to compile patterns: " + error.message },
+      { status: 500 }
+    )
   }
 }

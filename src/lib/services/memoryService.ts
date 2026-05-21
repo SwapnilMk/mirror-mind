@@ -46,7 +46,7 @@ export class MemoryService {
             importance: data.importanceScore || 6,
             emotion: data.emotion || dominantEmotion,
             timestamp: new Date(),
-          }
+          },
         })
         return { saved: true, memory, data }
       }
@@ -63,7 +63,7 @@ export class MemoryService {
    */
   static async getOrCreateProfile(userId: string) {
     let profile = await prisma.profileMemory.findUnique({
-      where: { userId }
+      where: { userId },
     })
 
     if (!profile) {
@@ -71,7 +71,7 @@ export class MemoryService {
         data: {
           userId,
           onboardingStage: 1,
-        }
+        },
       })
     }
 

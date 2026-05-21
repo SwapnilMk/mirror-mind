@@ -1,7 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Brain, Sparkles, Activity, TrendingUp, AlertTriangle, ArrowUpRight, Zap, Target } from "lucide-react"
+import {
+  Plus,
+  Brain,
+  Sparkles,
+  Activity,
+  TrendingUp,
+  AlertTriangle,
+  ArrowUpRight,
+  Zap,
+  Target,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -39,11 +49,13 @@ export default function DashboardPage() {
         const decData = await decRes.json()
         if (Array.isArray(decData)) {
           setRecentDecisions(decData.slice(0, 3))
-          
+
           const total = decData.length
-          const avgConfidence = total ? Math.round(decData.reduce((acc: number, d: any) => acc + d.confidence, 0) / total) : 0
+          const avgConfidence = total
+            ? Math.round(decData.reduce((acc: number, d: any) => acc + d.confidence, 0) / total)
+            : 0
           const goodOutcomes = decData.filter((d: any) => d.outcome === "good").length
-          
+
           setStats({ total, avgConfidence, goodOutcomes })
         }
 
@@ -83,7 +95,9 @@ export default function DashboardPage() {
                 {emotionalState}
               </span>
             </p>
-            <h1 className="text-xl font-bold text-white mt-1">{session?.user?.name || "Explorer"} 👋</h1>
+            <h1 className="text-xl font-bold text-white mt-1">
+              {session?.user?.name || "Explorer"} 👋
+            </h1>
           </div>
           <div className="w-10 h-10 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold shadow-lg shadow-violet-950/60">
             {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "EX"}
@@ -103,7 +117,10 @@ export default function DashboardPage() {
           <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4 relative overflow-hidden">
             <div className="absolute right-0 bottom-0 w-16 h-16 bg-gradient-to-br from-emerald-600/5 to-transparent blur-lg pointer-events-none" />
             <p className="text-zinc-500 text-xs mb-1">Avg Confidence</p>
-            <p className="text-3xl font-bold text-white">{stats.avgConfidence}<span className="text-base text-zinc-500">%</span></p>
+            <p className="text-3xl font-bold text-white">
+              {stats.avgConfidence}
+              <span className="text-base text-zinc-500">%</span>
+            </p>
             <p className="text-emerald-400 text-[10px] font-medium mt-1 flex items-center gap-1">
               <Zap size={10} /> Choice Alignment
             </p>
@@ -118,30 +135,41 @@ export default function DashboardPage() {
               <div className="w-6 h-6 rounded-lg bg-violet-600/15 border border-violet-500/20 flex items-center justify-center text-violet-400">
                 <Sparkles size={12} className="animate-pulse" />
               </div>
-              <h3 className="text-xs font-bold text-violet-300 uppercase tracking-widest">Active Behavioral Audit</h3>
-              <span className="ml-auto text-[9px] text-zinc-500">{new Date(latestReflection.createdAt).toLocaleDateString()}</span>
+              <h3 className="text-xs font-bold text-violet-300 uppercase tracking-widest">
+                Active Behavioral Audit
+              </h3>
+              <span className="ml-auto text-[9px] text-zinc-500">
+                {new Date(latestReflection.createdAt).toLocaleDateString()}
+              </span>
             </div>
-            
+
             <h4 className="text-sm font-semibold text-white leading-normal mb-2">
               {latestReflection.title}
             </h4>
-            
+
             <p className="text-zinc-300 text-xs leading-relaxed mb-4 font-medium italic">
               &ldquo;{latestReflection.summary}&rdquo;
             </p>
 
             <div className="space-y-2 border-t border-white/5 pt-3.5">
               <div>
-                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block mb-1">Actionable Insight</span>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block mb-1">
+                  Actionable Insight
+                </span>
                 <div className="flex items-start gap-2 bg-[#0a0a14] border border-white/4 p-2.5 rounded-xl text-[11px] text-zinc-200">
                   <Target size={12} className="text-violet-400 mt-0.5 shrink-0" />
-                  <span>{latestReflection.insights[0] || "Continue tracking choices to isolate cognitive growth levers."}</span>
+                  <span>
+                    {latestReflection.insights[0] ||
+                      "Continue tracking choices to isolate cognitive growth levers."}
+                  </span>
                 </div>
               </div>
 
               {latestReflection.loops?.length > 0 && (
                 <div className="pt-1">
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block mb-1">Recognized Loop</span>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block mb-1">
+                    Recognized Loop
+                  </span>
                   <div className="flex items-center gap-2 text-[10px] text-rose-400 bg-rose-950/20 border border-rose-900/30 p-2 rounded-xl">
                     <AlertTriangle size={11} className="shrink-0" />
                     <span className="font-semibold">{latestReflection.loops[0]}</span>
@@ -159,7 +187,8 @@ export default function DashboardPage() {
               </p>
               <p className="text-white font-bold text-sm">MirrorMind Awaiting Reflection...</p>
               <p className="text-zinc-400 text-xs mt-1 leading-normal">
-                Chat with your double inside the Companion tab to build your cognitive profile and trigger automatic reports.
+                Chat with your double inside the Companion tab to build your cognitive profile and
+                trigger automatic reports.
               </p>
             </button>
           </Link>
@@ -172,7 +201,9 @@ export default function DashboardPage() {
               <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
                 <Brain size={14} className="text-violet-400" /> AI Identity Simulation
               </h3>
-              <p className="text-zinc-500 text-xs mt-0.5">Test future timelines or consult your stopper/Stoic self</p>
+              <p className="text-zinc-500 text-xs mt-0.5">
+                Test future timelines or consult your stopper/Stoic self
+              </p>
             </div>
             <div className="w-8 h-8 rounded-xl bg-violet-900/10 border border-violet-800/20 flex items-center justify-center text-violet-400 group-hover:bg-violet-600 group-hover:text-white transition-all">
               <ArrowUpRight size={16} />
@@ -183,28 +214,41 @@ export default function DashboardPage() {
         {/* Recent */}
         <div className="flex items-center justify-between mb-3.5">
           <h2 className="text-white font-bold text-sm">Recent Decisions</h2>
-          <Link href="/decisions" className="text-violet-400 text-xs font-semibold hover:underline">See all</Link>
+          <Link href="/decisions" className="text-violet-400 text-xs font-semibold hover:underline">
+            See all
+          </Link>
         </div>
-        
+
         <div className="flex flex-col gap-3">
           {loading ? (
-            [1, 2, 3].map(i => <div key={i} className="h-24 rounded-2xl bg-white/4 animate-pulse" />)
+            [1, 2, 3].map((i) => (
+              <div key={i} className="h-24 rounded-2xl bg-white/4 animate-pulse" />
+            ))
           ) : recentDecisions.length > 0 ? (
             recentDecisions.map((d) => (
               <Link href={`/decisions?id=${d.id}`} key={d.id}>
                 <div className="bg-[#13131e] border border-white/6 rounded-2xl p-4 text-left w-full hover:border-violet-800/40 transition-all shadow-md">
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-white text-xs font-bold leading-snug flex-1">{d.title}</p>
-                    <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${catColors[d.category] || "bg-zinc-800 text-zinc-400 border-zinc-700"}`}>
+                    <span
+                      className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${catColors[d.category] || "bg-zinc-800 text-zinc-400 border-zinc-700"}`}
+                    >
                       {d.category}
                     </span>
                   </div>
-                  <p className="text-zinc-400 text-[10px] font-medium mt-1.5 line-clamp-1 italic">{d.choice}</p>
+                  <p className="text-zinc-400 text-[10px] font-medium mt-1.5 line-clamp-1 italic">
+                    {d.choice}
+                  </p>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex-1 h-1 bg-white/6 rounded-full overflow-hidden mr-3">
-                      <div className="h-full bg-violet-500 rounded-full" style={{ width: `${d.confidence}%` }}/>
+                      <div
+                        className="h-full bg-violet-500 rounded-full"
+                        style={{ width: `${d.confidence}%` }}
+                      />
                     </div>
-                    <span className="text-zinc-500 text-[10px] font-mono font-bold">{d.confidence}% confidence</span>
+                    <span className="text-zinc-500 text-[10px] font-mono font-bold">
+                      {d.confidence}% confidence
+                    </span>
                   </div>
                 </div>
               </Link>

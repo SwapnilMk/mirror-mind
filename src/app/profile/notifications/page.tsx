@@ -15,7 +15,7 @@ export default function NotificationsPage() {
   const [saving, setSaving] = useState(false)
 
   const handleToggle = (key: keyof typeof preferences) => {
-    setPreferences(prev => ({ ...prev, [key]: !prev[key] }))
+    setPreferences((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
   const handleSave = () => {
@@ -42,7 +42,8 @@ export default function NotificationsPage() {
 
         <h1 className="text-xl font-bold text-white mb-2">Notification Settings</h1>
         <p className="text-zinc-500 text-xs mb-8">
-          Choose how and when MirrorMind contacts you regarding your cognitive mapping and self-sabotage insights.
+          Choose how and when MirrorMind contacts you regarding your cognitive mapping and
+          self-sabotage insights.
         </p>
 
         {/* Preference cards */}
@@ -55,7 +56,8 @@ export default function NotificationsPage() {
             <div className="flex-1">
               <h3 className="text-white text-sm font-bold">Weekly Reflection Summary</h3>
               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">
-                Receive an AI-synthesized weekly report detailing your behavioral trends and emotional cycles.
+                Receive an AI-synthesized weekly report detailing your behavioral trends and
+                emotional cycles.
               </p>
             </div>
             <button
@@ -80,7 +82,8 @@ export default function NotificationsPage() {
             <div className="flex-1">
               <h3 className="text-white text-sm font-bold">Behavioral Drift Alerts</h3>
               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">
-                Get notified when your choices diverge significantly from your stated core values or habits.
+                Get notified when your choices diverge significantly from your stated core values or
+                habits.
               </p>
             </div>
             <button
@@ -105,7 +108,8 @@ export default function NotificationsPage() {
             <div className="flex-1">
               <h3 className="text-white text-sm font-bold">Simulation Completions</h3>
               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">
-                Alert me when heavy computation parallel timeline simulations finish running in the background.
+                Alert me when heavy computation parallel timeline simulations finish running in the
+                background.
               </p>
             </div>
             <button

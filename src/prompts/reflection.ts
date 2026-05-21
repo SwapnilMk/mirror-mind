@@ -29,4 +29,4 @@ You must output a raw, valid JSON object with the following fields:
 6. "confidenceTrend": A 1-2 sentence assessment of how their confidence levels fluctuate depending on stress.
 7. "insights": A list of 3 actionable behavioral insights.
 
-Do not wrap the JSON in markdown code blocks. Output only raw JSON.`;
+Do not wrap the JSON in markdown code blocks. Output only raw JSON.`

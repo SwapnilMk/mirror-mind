@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
-import { Brain, Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
+import Image from "next/image"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
@@ -43,8 +44,14 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#080810] px-6 pt-20 pb-10">
       <div className="mb-8 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-xl shadow-violet-900/40 mx-auto mb-6">
-          <Brain size={32} color="white" />
+        <div className="w-16 h-16 rounded-2xl bg-[#13131e] border border-violet-500/20 flex items-center justify-center shadow-xl shadow-violet-900/30 mx-auto mb-6 p-1.5 overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt="MirrorMind Logo"
+            width={64}
+            height={64}
+            className="object-contain w-full h-full rounded-xl"
+          />
         </div>
         <h1 className="text-2xl font-bold text-white mb-1">Create account</h1>
         <p className="text-zinc-500 text-sm">Start your decision intelligence journey</p>
@@ -56,7 +63,7 @@ export default function SignupPage() {
           <input
             required
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Alex Rivera"
             className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3.5 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700"
           />
@@ -67,7 +74,7 @@ export default function SignupPage() {
             type="email"
             required
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3.5 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700"
           />
@@ -79,7 +86,7 @@ export default function SignupPage() {
             required
             minLength={8}
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="8+ characters"
             className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3.5 pr-12 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700"
           />
@@ -103,16 +110,17 @@ export default function SignupPage() {
 
       <p className="text-zinc-600 text-xs text-center mt-2 px-8">
         By signing up you agree to our{" "}
-        <button className="text-violet-400 font-medium hover:underline">Terms</button>
-        {" "}&amp;{" "}
+        <button className="text-violet-400 font-medium hover:underline">Terms</button> &amp;{" "}
         <button className="text-violet-400 font-medium hover:underline">Privacy Policy</button>
       </p>
 
-      <div className="flex-1 min-h-[40px]"/>
+      <div className="flex-1 min-h-[40px]" />
 
       <p className="text-zinc-600 text-xs text-center">
         Already have an account?{" "}
-        <Link href="/login" className="text-violet-400 font-medium hover:underline">Sign in</Link>
+        <Link href="/login" className="text-violet-400 font-medium hover:underline">
+          Sign in
+        </Link>
       </p>
     </div>
   )

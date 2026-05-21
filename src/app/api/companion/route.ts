@@ -8,7 +8,7 @@ import { COMPANION_SYSTEM_INSTRUCTIONS, FORMAT_INSTRUCTIONS } from "@/prompts/co
 import { EmotionService } from "@/lib/services/emotionService"
 import { MemoryService } from "@/lib/services/memoryService"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 // GET: Fetch profile memory status and message history
 export async function GET(req: Request) {
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     const messages = await prisma.companionMessage.findMany({
       where: { userId },
       orderBy: { createdAt: "asc" },
-      take: 40
+      take: 40,
     })
 
     // Fetch episodic memories
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       profile,
       messages,
-      episodicMemories
+      episodicMemories,
     })
   } catch (error) {
     console.error("GET companion error:", error)
@@ -54,7 +54,11 @@ export async function POST(req: Request) {
 
     const body = await req.json()
     // Support custom payload `{ message }` or Vercel AI SDK `{ messages }` payload
-    const message = body.message || (body.messages && body.messages.length > 0 ? body.messages[body.messages.length - 1].content : null)
+    const message =
+      body.message ||
+      (body.messages && body.messages.length > 0
+        ? body.messages[body.messages.length - 1].content
+        : null)
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
@@ -75,8 +79,8 @@ export async function POST(req: Request) {
       data: {
         userId,
         role: "user",
-        content: message
-      }
+        content: message,
+      },
     })
 
     // --- NODE 1: Fetch Profile & Session Context ---
@@ -86,36 +90,48 @@ export async function POST(req: Request) {
     const historyMessages = await prisma.companionMessage.findMany({
       where: { userId },
       orderBy: { createdAt: "asc" },
-      take: 15
+      take: 15,
     })
-    const formattedHistory = historyMessages.map((m: any) => `${m.role === "user" ? "User" : "MirrorMind"}: ${m.content}`).join("\n")
+    const formattedHistory = historyMessages
+      .map((m: any) => `${m.role === "user" ? "User" : "MirrorMind"}: ${m.content}`)
+      .join("\n")
 
     // Get user's resolved decisions (to check for patterns)
     const recentDecisions = await prisma.decision.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      take: 5
+      take: 5,
     })
-    const formattedDecisions = recentDecisions.map(d => 
-      `- Title: "${d.title}" | Category: ${d.category} | Choice: "${d.choice}" | Outcome: "${d.outcome || 'Pending'}" | Emotion: "${d.emotion || 'None'}" | Regret: ${d.regretScore || 0}/10`
-    ).join("\n")
+    const formattedDecisions = recentDecisions
+      .map(
+        (d) =>
+          `- Title: "${d.title}" | Category: ${d.category} | Choice: "${d.choice}" | Outcome: "${d.outcome || "Pending"}" | Emotion: "${d.emotion || "None"}" | Regret: ${d.regretScore || 0}/10`
+      )
+      .join("\n")
 
     // Get episodic memories
     const episodicMemories = await MemoryService.getEpisodicMemories(userId, 10)
-    const formattedEpisodics = episodicMemories.map((e: any) => `- ${e.event} (Importance: ${e.importance}/10, Emotion: ${e.emotion || 'neutral'})`).join("\n")
+    const formattedEpisodics = episodicMemories
+      .map(
+        (e: any) =>
+          `- ${e.event} (Importance: ${e.importance}/10, Emotion: ${e.emotion || "neutral"})`
+      )
+      .join("\n")
 
     const onboardingStage = profile.onboardingStage
 
     // --- NODE 2: Fetch Current Emotional State (Fast DB query) ---
     const lastEmotionAnalysis = await prisma.emotionAnalysis.findFirst({
       where: { userId },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     })
     const emotionState = lastEmotionAnalysis?.dominantEmotion || "Neutral"
     const behaviorCues = [
       lastEmotionAnalysis?.avoidance ? "avoidance" : "",
-      lastEmotionAnalysis?.overthinking ? "overthinking" : ""
-    ].filter(Boolean).join(", ")
+      lastEmotionAnalysis?.overthinking ? "overthinking" : "",
+    ]
+      .filter(Boolean)
+      .join(", ")
 
     // --- BACKGROUND COGNITIVE PIPELINE ---
     // We run these heavy LLM & database processes asynchronously in the background.
@@ -123,7 +139,11 @@ export async function POST(req: Request) {
     const runBackgroundCognitivePipeline = async () => {
       try {
         // A. Real-time Structured Emotion Extraction & Save
-        const emotionAnalysis = await EmotionService.analyzeAndSave(userId, message, userMessageRecord.id)
+        const emotionAnalysis = await EmotionService.analyzeAndSave(
+          userId,
+          message,
+          userMessageRecord.id
+        )
         const currentEmotion = emotionAnalysis.dominantEmotion
 
         // B. Onboarding Extraction & Stage Advancement
@@ -131,8 +151,10 @@ export async function POST(req: Request) {
         let nextStage = onboardingStage
 
         if (onboardingStage < 6) {
-          const extractionPrompt = ONBOARDING_EXTRACTION_PROMPT
-            .replace("{onboardingStage}", String(onboardingStage))
+          const extractionPrompt = ONBOARDING_EXTRACTION_PROMPT.replace(
+            "{onboardingStage}",
+            String(onboardingStage)
+          )
             .replace("{message}", message)
             .replace("{history}", formattedHistory)
 
@@ -173,11 +195,19 @@ export async function POST(req: Request) {
         if (profileUpdate.routine) updatePayload.routine = profileUpdate.routine
         if (profileUpdate.workStyle) updatePayload.workStyle = updatePayload.workStyle
         if (profileUpdate.riskStyle) updatePayload.riskStyle = profileUpdate.riskStyle
-        if (profileUpdate.relationshipStatus) updatePayload.relationshipStatus = profileUpdate.relationshipStatus
+        if (profileUpdate.relationshipStatus)
+          updatePayload.relationshipStatus = profileUpdate.relationshipStatus
         if (nextStage !== onboardingStage) updatePayload.onboardingStage = nextStage
 
         // For arrays, append uniquely if present
-        const arrayFields = ["goals", "ambitions", "traits", "fears", "motivations", "overthinkItems"]
+        const arrayFields = [
+          "goals",
+          "ambitions",
+          "traits",
+          "fears",
+          "motivations",
+          "overthinkItems",
+        ]
         for (const field of arrayFields) {
           if (Array.isArray(profileUpdate[field]) && profileUpdate[field].length > 0) {
             const existing = (profile as any)[field] || []
@@ -189,7 +219,7 @@ export async function POST(req: Request) {
         if (Object.keys(updatePayload).length > 0) {
           await prisma.profileMemory.update({
             where: { userId },
-            data: updatePayload
+            data: updatePayload,
           })
         }
 
@@ -204,7 +234,7 @@ export async function POST(req: Request) {
                   importance: 8,
                   emotion: currentEmotion,
                   timestamp: new Date(),
-                }
+                },
               })
             } catch (err) {
               console.error("Failed to persist life event in background:", err)
@@ -226,13 +256,20 @@ export async function POST(req: Request) {
     let systemInstructions = ""
 
     if (profile.onboardingStage < 6) {
-      systemInstructions = ONBOARDING_SYSTEM_INSTRUCTIONS
-        .replaceAll("{onboardingStage}", String(profile.onboardingStage))
+      systemInstructions = ONBOARDING_SYSTEM_INSTRUCTIONS.replaceAll(
+        "{onboardingStage}",
+        String(profile.onboardingStage)
+      )
     } else {
-      systemInstructions = COMPANION_SYSTEM_INSTRUCTIONS
-        .replace("{preferredName}", profile.preferredName || profile.name || "Explorer")
+      systemInstructions = COMPANION_SYSTEM_INSTRUCTIONS.replace(
+        "{preferredName}",
+        profile.preferredName || profile.name || "Explorer"
+      )
         .replace("{birthday}", profile.birthday || "Not specified")
-        .replace("{career}", `${profile.designation || profile.profession || "Not specified"} at ${profile.company || "Not specified"}`)
+        .replace(
+          "{career}",
+          `${profile.designation || profile.profession || "Not specified"} at ${profile.company || "Not specified"}`
+        )
         .replace("{goals}", profile.goals?.join(", ") || "None listed")
         .replace("{traits}", profile.traits?.join(", ") || "None listed")
         .replace("{motivations}", profile.motivations?.join(", ") || "None listed")
@@ -246,42 +283,48 @@ export async function POST(req: Request) {
 
     const conversationPrompt = ChatPromptTemplate.fromMessages([
       ["system", systemInstructions],
-      ["system", `Detected Emotional State: ${emotionState}. Behavioral Cues: ${behaviorCues || 'normal'}.`],
+      [
+        "system",
+        `Detected Emotional State: ${emotionState}. Behavioral Cues: ${behaviorCues || "normal"}.`,
+      ],
       ["system", FORMAT_INSTRUCTIONS],
-      ["user", `Latest Message: "${message}"\n\nHistory Context:\n{history}\n\nMirrorMind, stream your response:`]
+      [
+        "user",
+        `Latest Message: "${message}"\n\nHistory Context:\n{history}\n\nMirrorMind, stream your response:`,
+      ],
     ])
 
     const responseChain = conversationPrompt.pipe(llm)
     const stream = await responseChain.stream({
-      history: formattedHistory
+      history: formattedHistory,
     })
 
     let accumulatedText = ""
-    
+
     const customStream = new ReadableStream({
       async start(controller) {
         for await (const chunk of stream) {
-          const textChunk = chunk.content as string;
-          accumulatedText += textChunk;
-          controller.enqueue(textChunk);
+          const textChunk = chunk.content as string
+          accumulatedText += textChunk
+          controller.enqueue(textChunk)
         }
-        controller.close();
+        controller.close()
 
         // AFTER stream finishes, save assistant message to database:
         try {
           await prisma.companionMessage.create({
-            data: { userId, role: "assistant", content: accumulatedText }
-          });
-        } catch(e) {
+            data: { userId, role: "assistant", content: accumulatedText },
+          })
+        } catch (e) {
           console.error("Failed to save assistant stream to DB", e)
         }
-      }
-    });
+      },
+    })
 
     return new Response(customStream, {
       headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Transfer-Encoding': 'chunked',
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
       },
     })
   } catch (error) {

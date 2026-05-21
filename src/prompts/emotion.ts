@@ -9,4 +9,4 @@ You must respond with a raw, valid JSON object with the following fields:
 5. "avoidance": Boolean. Set to true if the user is avoiding questions, procrastinating, changing the topic abruptly, or showing self-sabotaging avoidance.
 6. "overthinking": Boolean. Set to true if they express recursive doubts, over-analyzing a single problem, circular logic, or decision paralysis.
 
-Respond ONLY with raw JSON. No markdown code blocks, no additional explanation.`;
+Respond ONLY with raw JSON. No markdown code blocks, no additional explanation.`

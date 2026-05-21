@@ -29,7 +29,7 @@ export default function ExportPage() {
     fetchDecisions()
   }, [])
 
-  const filteredDecisions = decisions.filter(d => {
+  const filteredDecisions = decisions.filter((d) => {
     if (selectedCategory === "all") return true
     return d.category === selectedCategory
   })
@@ -46,13 +46,24 @@ export default function ExportPage() {
       try {
         let content = ""
         let mimeType = ""
-        let filename = `mirrormind_export_${new Date().toISOString().split('T')[0]}`
+        let filename = `mirrormind_export_${new Date().toISOString().split("T")[0]}`
 
         if (format === "csv") {
-          const headers = ["Title", "Category", "Situation", "Choice", "Confidence", "Outcome", "Emotion", "Regret Score", "Stress Level", "Created At"]
+          const headers = [
+            "Title",
+            "Category",
+            "Situation",
+            "Choice",
+            "Confidence",
+            "Outcome",
+            "Emotion",
+            "Regret Score",
+            "Stress Level",
+            "Created At",
+          ]
           const csvRows = [
             headers.join(","),
-            ...filteredDecisions.map(d => {
+            ...filteredDecisions.map((d) => {
               const values = [
                 d.title || "",
                 d.category || "",
@@ -63,10 +74,10 @@ export default function ExportPage() {
                 d.emotion || "Neutral",
                 d.regretScore ?? 0,
                 d.stressLevel ?? 5,
-                d.createdAt ? new Date(d.createdAt).toISOString() : ""
+                d.createdAt ? new Date(d.createdAt).toISOString() : "",
               ]
-              return values.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
-            })
+              return values.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(",")
+            }),
           ]
           content = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"))
           mimeType = "text/csv"
@@ -103,7 +114,7 @@ export default function ExportPage() {
     { value: "relationship", label: "Relationships" },
     { value: "health", label: "Health & Vitality" },
     { value: "education", label: "Education" },
-    { value: "other", label: "Other" }
+    { value: "other", label: "Other" },
   ]
 
   return (
@@ -122,7 +133,8 @@ export default function ExportPage() {
 
         <h1 className="text-xl font-bold text-white mb-2">Export Archive</h1>
         <p className="text-zinc-500 text-xs mb-8">
-          Download a complete digital archive of your decisions, emotions, regret scores, and outcomes.
+          Download a complete digital archive of your decisions, emotions, regret scores, and
+          outcomes.
         </p>
 
         {loading ? (
@@ -169,10 +181,10 @@ export default function ExportPage() {
               </div>
               <select
                 value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full bg-[#0c0c14] border border-white/8 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-violet-500 cursor-pointer"
               >
-                {categories.map(cat => (
+                {categories.map((cat) => (
                   <option key={cat.value} value={cat.value} className="bg-[#13131e]">
                     {cat.label}
                   </option>

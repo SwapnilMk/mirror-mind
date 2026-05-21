@@ -37,20 +37,20 @@ export default function SupportPage() {
   const faqs = [
     {
       q: "How does the AI Double Simulation work?",
-      a: "The Double Simulation analyzes the category, context, choices, confidence, emotions, and outcome regret values of all your historical decisions. It maps these inputs to predict your behavior in hypothetical settings or construct alternative realities."
+      a: "The Double Simulation analyzes the category, context, choices, confidence, emotions, and outcome regret values of all your historical decisions. It maps these inputs to predict your behavior in hypothetical settings or construct alternative realities.",
     },
     {
       q: "Is my personal data secure and private?",
-      a: "Absolutely. All logged details are saved in a private database. Any prompts sent to Large Language Models (LLMs) to perform behavioral mappings are covered under commercial API terms, meaning they are never used to train public models."
+      a: "Absolutely. All logged details are saved in a private database. Any prompts sent to Large Language Models (LLMs) to perform behavioral mappings are covered under commercial API terms, meaning they are never used to train public models.",
     },
     {
       q: "How do I resolve a 'pending' decision?",
-      a: "Navigate to the Log tab, search for the decision, and click it to open the detail card. In the Reflection Panel, select the outcome status (Good/Bad), adjust your regret score and stress levels, and click 'Save Reflections'."
+      a: "Navigate to the Log tab, search for the decision, and click it to open the detail card. In the Reflection Panel, select the outcome status (Good/Bad), adjust your regret score and stress levels, and click 'Save Reflections'.",
     },
     {
       q: "Why does the simulator require past decisions?",
-      a: "MirrorMind is not a generic chatbot. It works as a personalized behavioral mirror. To predict your decisions or map out your cognitive biases, the AI requires historical reference data from your logged choices."
-    }
+      a: "MirrorMind is not a generic chatbot. It works as a personalized behavioral mirror. To predict your decisions or map out your cognitive biases, the AI requires historical reference data from your logged choices.",
+    },
   ]
 
   return (
@@ -69,7 +69,8 @@ export default function SupportPage() {
 
         <h1 className="text-xl font-bold text-white mb-2">Help & Support</h1>
         <p className="text-zinc-500 text-xs mb-8">
-          Submit help requests to our operations desk and read diagnostic information regarding cognitive profiling.
+          Submit help requests to our operations desk and read diagnostic information regarding
+          cognitive profiling.
         </p>
 
         {/* Support ticketing form */}
@@ -81,21 +82,25 @@ export default function SupportPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">Subject</label>
+              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">
+                Subject
+              </label>
               <input
                 type="text"
                 value={subject}
-                onChange={e => setSubject(e.target.value)}
+                onChange={(e) => setSubject(e.target.value)}
                 placeholder="e.g. Issue generating simulations"
                 className="w-full bg-[#0c0c14] border border-white/8 rounded-xl px-4 py-3 text-sm text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-violet-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">Priority Level</label>
+              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">
+                Priority Level
+              </label>
               <select
                 value={priority}
-                onChange={e => setPriority(e.target.value)}
+                onChange={(e) => setPriority(e.target.value)}
                 className="w-full bg-[#0c0c14] border border-white/8 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-violet-500 transition-colors cursor-pointer"
               >
                 <option value="low">Low (General Feedback)</option>
@@ -105,10 +110,12 @@ export default function SupportPage() {
             </div>
 
             <div>
-              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">Detailed Message</label>
+              <label className="block text-zinc-500 text-[10px] uppercase tracking-wider mb-1.5">
+                Detailed Message
+              </label>
               <textarea
                 value={message}
-                onChange={e => setMessage(e.target.value)}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Describe your question or issue in detail..."
                 rows={4}
                 className="w-full bg-[#0c0c14] border border-white/8 rounded-xl px-4 py-3 text-sm text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-violet-500 transition-colors resize-none"
@@ -143,7 +150,10 @@ export default function SupportPage() {
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index
               return (
-                <div key={index} className="bg-[#13131e] border border-white/6 rounded-2xl overflow-hidden transition-all">
+                <div
+                  key={index}
+                  className="bg-[#13131e] border border-white/6 rounded-2xl overflow-hidden transition-all"
+                >
                   <button
                     onClick={() => toggleFaq(index)}
                     className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-white/2 transition-colors cursor-pointer"

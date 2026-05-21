@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { ReflectionService } from "@/lib/services/reflectionService"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 // GET: Fetch user's history of reflection reports
 export async function GET() {
@@ -32,7 +32,10 @@ export async function POST() {
 
     const report = await ReflectionService.generateReport(userId)
     if (!report) {
-      return NextResponse.json({ error: "Failed to generate reflection report (insufficient context or AI error)" }, { status: 500 })
+      return NextResponse.json(
+        { error: "Failed to generate reflection report (insufficient context or AI error)" },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(report)

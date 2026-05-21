@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     })
 
     if (existingUser) {
@@ -24,8 +24,8 @@ export async function POST(req: Request) {
       data: {
         name,
         email,
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     })
 
     return NextResponse.json({ message: "User created successfully" })

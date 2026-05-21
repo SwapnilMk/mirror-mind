@@ -20,7 +20,7 @@ export class ReflectionService {
     try {
       // 1. Fetch Profile Memory
       const profile = await prisma.profileMemory.findUnique({
-        where: { userId }
+        where: { userId },
       })
       if (!profile) return null
 
@@ -28,21 +28,21 @@ export class ReflectionService {
       const decisions = await prisma.decision.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
-        take: 10
+        take: 10,
       })
 
       // 3. Fetch recent Emotion Analyses (up to 20)
       const emotions = await prisma.emotionAnalysis.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
-        take: 20
+        take: 20,
       })
 
       // 4. Fetch recent Companion Messages (up to 15)
       const historyMessages = await prisma.companionMessage.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
-        take: 15
+        take: 15,
       })
 
       // Reverse messages to order chronologically
@@ -54,21 +54,32 @@ export class ReflectionService {
       const fearsText = profile.fears?.join(", ") || "None"
       const overthinkText = profile.overthinkItems?.join(", ") || "None"
 
-      const decisionsText = decisions.map((d, i) => 
-        `[${i+1}] Title: "${d.title}" | Category: ${d.category} | Situation: "${d.situation}" | Choice: "${d.choice}" | Outcome: "${d.outcome}" | Regret: ${d.regretScore}/10 | Stress: ${d.stressLevel}/10`
-      ).join("\n") || "No recent decisions logged."
+      const decisionsText =
+        decisions
+          .map(
+            (d, i) =>
+              `[${i + 1}] Title: "${d.title}" | Category: ${d.category} | Situation: "${d.situation}" | Choice: "${d.choice}" | Outcome: "${d.outcome}" | Regret: ${d.regretScore}/10 | Stress: ${d.stressLevel}/10`
+          )
+          .join("\n") || "No recent decisions logged."
 
-      const emotionsText = emotions.map(e => 
-        `- Emotion: "${e.dominantEmotion}" | Intensity: ${(e.intensity * 100).toFixed(0)}% | Sentiment: "${e.sentiment}" | Avoidance: ${e.avoidance} | Overthinking: ${e.overthinking}`
-      ).join("\n") || "No emotion analytics compiled yet."
+      const emotionsText =
+        emotions
+          .map(
+            (e) =>
+              `- Emotion: "${e.dominantEmotion}" | Intensity: ${(e.intensity * 100).toFixed(0)}% | Sentiment: "${e.sentiment}" | Avoidance: ${e.avoidance} | Overthinking: ${e.overthinking}`
+          )
+          .join("\n") || "No emotion analytics compiled yet."
 
-      const historyText = history.map(m => 
-        `${m.role === "user" ? "User" : "MirrorMind"}: ${m.content.slice(0, 150)}...`
-      ).join("\n") || "No conversation history logged."
+      const historyText =
+        history
+          .map((m) => `${m.role === "user" ? "User" : "MirrorMind"}: ${m.content.slice(0, 150)}...`)
+          .join("\n") || "No conversation history logged."
 
       // 6. Formulate system prompt
-      const prompt = REFLECTION_ENGINE_PROMPT
-        .replace("{preferredName}", profile.preferredName || profile.name || "Explorer")
+      const prompt = REFLECTION_ENGINE_PROMPT.replace(
+        "{preferredName}",
+        profile.preferredName || profile.name || "Explorer"
+      )
         .replace("{career}", `${profile.designation || "Seeker"} at ${profile.company || "Self"}`)
         .replace("{goals}", goalsText)
         .replace("{traits}", traitsText)
@@ -106,8 +117,8 @@ export class ReflectionService {
           loops: data.loops || [],
           avoidanceTrend: data.avoidanceTrend || "",
           confidenceTrend: data.confidenceTrend || "",
-          insights: data.insights || []
-        }
+          insights: data.insights || [],
+        },
       })
 
       // 9. Update ProfileMemory traits/fears uniquely if new elements were discovered
@@ -115,8 +126,8 @@ export class ReflectionService {
       await prisma.profileMemory.update({
         where: { userId },
         data: {
-          fears: updatedFears
-        }
+          fears: updatedFears,
+        },
       })
 
       return report
@@ -133,7 +144,7 @@ export class ReflectionService {
     return await prisma.reflectionReport.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      take: limit
+      take: limit,
     })
   }
 }

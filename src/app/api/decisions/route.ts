@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
   try {
@@ -22,15 +22,15 @@ export async function GET(req: Request) {
     if (outcome) where.outcome = outcome
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { situation: { contains: search, mode: 'insensitive' } },
-        { choice: { contains: search, mode: 'insensitive' } }
+        { title: { contains: search, mode: "insensitive" } },
+        { situation: { contains: search, mode: "insensitive" } },
+        { choice: { contains: search, mode: "insensitive" } },
       ]
     }
 
     const decisions = await prisma.decision.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     })
     return NextResponse.json(decisions)
   } catch (error) {
@@ -58,8 +58,8 @@ export async function POST(req: Request) {
         outcome: body.outcome || "pending",
         emotion: body.emotion || "Neutral",
         regretScore: body.regretScore !== undefined ? Number(body.regretScore) : 0,
-        stressLevel: body.stressLevel !== undefined ? Number(body.stressLevel) : 5
-      } as any
+        stressLevel: body.stressLevel !== undefined ? Number(body.stressLevel) : 5,
+      } as any,
     })
     return NextResponse.json(decision)
   } catch (error) {
@@ -83,9 +83,9 @@ export async function PATCH(req: Request) {
     }
 
     // Verify ownership
-    const existing = await prisma.decision.findUnique({
-      where: { id }
-    }) as any
+    const existing = (await prisma.decision.findUnique({
+      where: { id },
+    })) as any
 
     if (!existing || existing.userId !== userId) {
       return NextResponse.json({ error: "Decision not found or unauthorized" }, { status: 404 })
@@ -98,7 +98,7 @@ export async function PATCH(req: Request) {
         regretScore: regretScore !== undefined ? Number(regretScore) : existing.regretScore,
         emotion: emotion !== undefined ? emotion : existing.emotion,
         stressLevel: stressLevel !== undefined ? Number(stressLevel) : existing.stressLevel,
-      } as any
+      } as any,
     })
 
     return NextResponse.json(updated)
@@ -123,14 +123,14 @@ export async function DELETE(req: Request) {
 
     if (id === "all") {
       await prisma.decision.deleteMany({
-        where: { userId }
+        where: { userId },
       })
       return NextResponse.json({ success: true })
     }
 
     // Verify ownership
     const decision = await prisma.decision.findUnique({
-      where: { id }
+      where: { id },
     })
 
     if (!decision || decision.userId !== userId) {
@@ -138,7 +138,7 @@ export async function DELETE(req: Request) {
     }
 
     await prisma.decision.delete({
-      where: { id }
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
@@ -146,4 +146,3 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Failed to delete decision" }, { status: 500 })
   }
 }
-

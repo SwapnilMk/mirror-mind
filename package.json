@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build && npx cap sync android && cd android && gradlew.bat assembleDebug",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write . --ignore-path .gitignore",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -79,6 +80,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "prettier": "^3.8.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

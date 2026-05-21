@@ -19,10 +19,10 @@ export class EmotionService {
   static async analyzeAndSave(userId: string, message: string, messageId?: string) {
     try {
       const prompt = EMOTION_ANALYSIS_PROMPT.replace("{message}", message)
-      
+
       const response = await this.llm.invoke(prompt)
       const rawContent = (response.content as string).trim()
-      
+
       let cleanContent = rawContent
       if (cleanContent.startsWith("```json")) {
         cleanContent = cleanContent.slice(7)
@@ -48,13 +48,13 @@ export class EmotionService {
           sentiment: data.sentiment || "neutral",
           avoidance: !!data.avoidance,
           overthinking: !!data.overthinking,
-        }
+        },
       })
 
       return analysis
     } catch (error) {
       console.error("Failed to analyze user emotion:", error)
-      
+
       // Fallback save in case of AI parsing failure
       return await prisma.emotionAnalysis.create({
         data: {
@@ -66,7 +66,7 @@ export class EmotionService {
           sentiment: "neutral",
           avoidance: false,
           overthinking: false,
-        }
+        },
       })
     }
   }

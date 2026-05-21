@@ -1,4 +1,4 @@
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig } from "next-auth"
 
 export const authConfig = {
   session: { strategy: "jwt" },
@@ -8,16 +8,16 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id
       }
-      return token;
+      return token
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
+        ;(session.user as any).id = token.id
       }
-      return session;
+      return session
     },
   },
   providers: [], // Added in auth.ts to keep middleware Edge-compatible
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig

@@ -1,33 +1,34 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { 
-  Brain, 
-  ArrowRight, 
-  ArrowLeft, 
-  CheckCircle2, 
-  ChevronRight, 
-  UserPlus, 
-  Activity, 
-  UserCheck, 
-  Sparkles, 
-  Layers, 
-  User, 
-  ShieldQuestion 
+import {
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  UserPlus,
+  Activity,
+  UserCheck,
+  Sparkles,
+  Layers,
+  User,
+  ShieldQuestion,
 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+import Image from "next/image"
 
 const onboardingQuestions = [
   {
     title: "Career & Risk Profile",
     category: "work",
-    question: "You receive an unexpected job offer with 30% higher salary, but it is at an early-stage startup with low stability. What is your move?",
+    question:
+      "You receive an unexpected job offer with 30% higher salary, but it is at an early-stage startup with low stability. What is your move?",
     options: [
       "Accept it. I love high-risk, high-reward scenarios and fast-paced learning.",
       "Decline it. I value long-term stability and security in my current role.",
-      "Negotiate first. Try to secure safety clauses or remote flexibility before deciding."
-    ]
+      "Negotiate first. Try to secure safety clauses or remote flexibility before deciding.",
+    ],
   },
   {
     title: "Financial Allocation",
@@ -36,8 +37,8 @@ const onboardingQuestions = [
     options: [
       "Aggressive growth. Allocate to stocks, crypto, or new business ventures.",
       "Safety first. Put it in secure deposits or high-yield savings accounts.",
-      "Balanced. Keep 50% in safe index funds and 50% in secure liquid cash."
-    ]
+      "Balanced. Keep 50% in safe index funds and 50% in secure liquid cash.",
+    ],
   },
   {
     title: "Productivity & Lifestyle",
@@ -46,24 +47,54 @@ const onboardingQuestions = [
     options: [
       "Work on a side project or acquire new skills. I like to stay productive.",
       "Completely unplug. Recharge, read books, or relax with loved ones.",
-      "Seek out new experiences. Travel somewhere spontaneous or meet new people."
-    ]
-  }
+      "Seek out new experiences. Travel somewhere spontaneous or meet new people.",
+    ],
+  },
 ]
 
 const personas = [
-  { id: "future", name: "Future Self", sub: "5 Years Later", emoji: "🔮", desc: "Gentle wisdom and long-term reflection." },
-  { id: "past", name: "Past Self", sub: "5 Years Ago", emoji: "🎒", desc: "Reminds you of your core values." },
-  { id: "confident", name: "Confident Self", sub: "Inner Lion", emoji: "🦁", desc: "Pushes you to take high-growth risks." },
-  { id: "rational", name: "Brutal Analyst", sub: "Cold Logic", emoji: "💀", desc: "Strips away excuses and comfortable lies." },
-  { id: "stoic", name: "Stoic Mentor", sub: "Ancient Duty", emoji: "🏛️", desc: "Find calm by focusing only on control." }
+  {
+    id: "future",
+    name: "Future Self",
+    sub: "5 Years Later",
+    emoji: "🔮",
+    desc: "Gentle wisdom and long-term reflection.",
+  },
+  {
+    id: "past",
+    name: "Past Self",
+    sub: "5 Years Ago",
+    emoji: "🎒",
+    desc: "Reminds you of your core values.",
+  },
+  {
+    id: "confident",
+    name: "Confident Self",
+    sub: "Inner Lion",
+    emoji: "🦁",
+    desc: "Pushes you to take high-growth risks.",
+  },
+  {
+    id: "rational",
+    name: "Brutal Analyst",
+    sub: "Cold Logic",
+    emoji: "💀",
+    desc: "Strips away excuses and comfortable lies.",
+  },
+  {
+    id: "stoic",
+    name: "Stoic Mentor",
+    sub: "Ancient Duty",
+    emoji: "🏛️",
+    desc: "Find calm by focusing only on control.",
+  },
 ]
 
 const diagnosticSuggestions = [
   "Why do I keep choosing security over career growth?",
   "Why do I tend to overthink low-risk daily decisions?",
   "Why do I experience anxiety before spending money?",
-  "Why do I avoid taking risks in relationships?"
+  "Why do I avoid taking risks in relationships?",
 ]
 
 export default function SimulatePage() {
@@ -155,7 +186,7 @@ export default function SimulatePage() {
       const res = await fetch("/api/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (data.error) {
@@ -183,14 +214,14 @@ export default function SimulatePage() {
     }
 
     if (currentStep < onboardingQuestions.length - 1) {
-      setCurrentStep(prev => prev + 1)
+      setCurrentStep((prev) => prev + 1)
     } else {
       setSubmitting(true)
       try {
         for (let i = 0; i < onboardingQuestions.length; i++) {
           const q = onboardingQuestions[i]
           const choiceText = q.options[answers[i]]
-          
+
           const res = await fetch("/api/decisions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -202,12 +233,12 @@ export default function SimulatePage() {
               confidence: 90,
               outcome: "good",
               emotion: "Focused",
-              stressLevel: 4
-            })
+              stressLevel: 4,
+            }),
           })
           if (!res.ok) throw new Error("Failed to save onboarding decisions")
         }
-        
+
         toast.success("Cognitive profile created successfully!")
         await checkDecisions()
         setOnboardingActive(false)
@@ -222,7 +253,7 @@ export default function SimulatePage() {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1)
+      setCurrentStep((prev) => prev - 1)
     }
   }
 
@@ -242,17 +273,21 @@ export default function SimulatePage() {
         <div className="px-5 pt-12 pb-24 flex flex-col justify-between flex-1 max-w-lg mx-auto w-full">
           <div>
             <div className="flex justify-between items-center text-xs text-zinc-500 mb-2">
-              <span className="font-semibold uppercase tracking-wider text-violet-400">Twin Simulation Sync</span>
+              <span className="font-semibold uppercase tracking-wider text-violet-400">
+                Twin Simulation Sync
+              </span>
               <span>Step {currentStep + 1} of 3</span>
             </div>
             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mb-8">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-violet-600 to-purple-500 rounded-full transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / 3) * 100}%` }}
               />
             </div>
 
-            <h2 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">{q.title}</h2>
+            <h2 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              {q.title}
+            </h2>
             <h3 className="text-white text-lg font-bold mb-6 leading-snug">{q.question}</h3>
 
             <div className="flex flex-col gap-3">
@@ -263,15 +298,17 @@ export default function SimulatePage() {
                     key={i}
                     onClick={() => handleSelectOption(i)}
                     className={`w-full text-left p-4 rounded-2xl text-xs sm:text-sm transition-all border leading-relaxed cursor-pointer ${
-                      selected 
-                        ? "bg-violet-950/20 border-violet-500 text-violet-300 shadow-lg shadow-violet-950/50" 
+                      selected
+                        ? "bg-violet-950/20 border-violet-500 text-violet-300 shadow-lg shadow-violet-950/50"
                         : "bg-[#13131e] border-white/8 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-4 h-4 rounded-full border shrink-0 mt-0.5 flex items-center justify-center ${
-                        selected ? "border-violet-500 bg-violet-500" : "border-zinc-700"
-                      }`}>
+                      <div
+                        className={`w-4 h-4 rounded-full border shrink-0 mt-0.5 flex items-center justify-center ${
+                          selected ? "border-violet-500 bg-violet-500" : "border-zinc-700"
+                        }`}
+                      >
                         {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
                       <span>{opt}</span>
@@ -303,9 +340,13 @@ export default function SimulatePage() {
                   Generating Twin...
                 </>
               ) : currentStep === onboardingQuestions.length - 1 ? (
-                <>Finish & Sync <CheckCircle2 size={14} /></>
+                <>
+                  Finish & Sync <CheckCircle2 size={14} />
+                </>
               ) : (
-                <>Next Step <ChevronRight size={14} /></>
+                <>
+                  Next Step <ChevronRight size={14} />
+                </>
               )}
             </button>
           </div>
@@ -318,15 +359,22 @@ export default function SimulatePage() {
     return (
       <div className="flex flex-col min-h-screen bg-[#080810] text-white">
         <div className="px-5 pt-10 pb-24 flex flex-col items-center justify-center flex-1 text-center max-w-sm mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-900 flex items-center justify-center mb-6 shadow-xl shadow-violet-900/40 animate-pulse">
-            <Brain size={32} color="white" />
+          <div className="w-16 h-16 rounded-2xl bg-[#13131e] border border-violet-500/20 flex items-center justify-center mb-6 shadow-xl shadow-violet-900/30 p-1.5 overflow-hidden animate-pulse">
+            <Image
+              src="/logo.png"
+              alt="MirrorMind Logo"
+              width={64}
+              height={64}
+              className="object-contain w-full h-full rounded-xl"
+            />
           </div>
           <h2 className="text-xl font-bold mb-2">No Past Decisions Logged</h2>
           <p className="text-zinc-500 text-xs sm:text-sm mb-8 leading-relaxed">
-            MirrorMind simulates your choices by analyzing historical decisions. Complete our quick questionnaire to sync your twin instantly, or log a decision manually.
+            MirrorMind simulates your choices by analyzing historical decisions. Complete our quick
+            questionnaire to sync your twin instantly, or log a decision manually.
           </p>
           <div className="flex flex-col w-full gap-3">
-            <button 
+            <button
               onClick={() => setOnboardingActive(true)}
               className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold py-4 rounded-2xl text-xs sm:text-sm transition-colors shadow-lg shadow-violet-950/50 cursor-pointer flex items-center justify-center gap-2"
             >
@@ -355,7 +403,7 @@ export default function SimulatePage() {
     confidenceLabel = "Timeline Alignment probability"
     matchLabel = "Simulated Past Decision"
   } else if (activeMode === "persona") {
-    const p = personas.find(x => x.id === selectedPersonaId)
+    const p = personas.find((x) => x.id === selectedPersonaId)
     resultTitle = `${p?.name || "Persona"} Response`
     resultBadge = "Advisor Speech"
     confidenceLabel = "Advice Criticality"
@@ -372,7 +420,9 @@ export default function SimulatePage() {
       <div className="px-5 pt-10 pb-24">
         <div className="mb-4">
           <h1 className="text-xl font-bold text-white mb-1">Mirror Simulation Suite</h1>
-          <p className="text-zinc-500 text-xs">Test scenarios, dialogue with selves, and explore why you are you</p>
+          <p className="text-zinc-500 text-xs">
+            Test scenarios, dialogue with selves, and explore why you are you
+          </p>
         </div>
 
         {/* Mode Selector Segmented Bar */}
@@ -381,8 +431,8 @@ export default function SimulatePage() {
             { id: "double", label: "AI Double", icon: Activity },
             { id: "alt-reality", label: "Alt Reality", icon: Layers },
             { id: "persona", label: "Personas", icon: User },
-            { id: "why", label: "Why Am I Like This?", icon: ShieldQuestion }
-          ].map(m => {
+            { id: "why", label: "Why Am I Like This?", icon: ShieldQuestion },
+          ].map((m) => {
             const Icon = m.icon
             return (
               <button
@@ -408,10 +458,12 @@ export default function SimulatePage() {
         <div className="mb-5 flex flex-col gap-4">
           {activeMode === "double" && (
             <div>
-              <label className="text-xs text-zinc-500 font-medium mb-1.5 block">Describe a future dilemma / situation</label>
+              <label className="text-xs text-zinc-500 font-medium mb-1.5 block">
+                Describe a future dilemma / situation
+              </label>
               <textarea
                 value={situation}
-                onChange={e => setSituation(e.target.value)}
+                onChange={(e) => setSituation(e.target.value)}
                 placeholder="e.g. I have an opportunity to start a business with a friend, but I'd have to quit my job..."
                 rows={4}
                 className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700 resize-none"
@@ -422,13 +474,15 @@ export default function SimulatePage() {
           {activeMode === "alt-reality" && (
             <>
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">Select a past decision to change</label>
+                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">
+                  Select a past decision to change
+                </label>
                 <select
                   value={selectedDecisionId}
-                  onChange={e => setSelectedDecisionId(e.target.value)}
+                  onChange={(e) => setSelectedDecisionId(e.target.value)}
                   className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3 outline-none focus:border-violet-600 transition-colors cursor-pointer"
                 >
-                  {decisions.map(d => (
+                  {decisions.map((d) => (
                     <option key={d.id} value={d.id} className="bg-[#13131e] text-white">
                       {d.title} ({new Date(d.createdAt).toLocaleDateString()})
                     </option>
@@ -437,10 +491,12 @@ export default function SimulatePage() {
               </div>
 
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">What alternative choice would you make?</label>
+                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">
+                  What alternative choice would you make?
+                </label>
                 <textarea
                   value={alternativeChoice}
-                  onChange={e => setAlternativeChoice(e.target.value)}
+                  onChange={(e) => setAlternativeChoice(e.target.value)}
                   placeholder="e.g. Instead of playing it safe and declining, what if I had accepted the startup offer and negotiated for equity?"
                   rows={4}
                   className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700 resize-none"
@@ -452,9 +508,11 @@ export default function SimulatePage() {
           {activeMode === "persona" && (
             <>
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-2 block">Choose an advisor persona</label>
+                <label className="text-xs text-zinc-500 font-medium mb-2 block">
+                  Choose an advisor persona
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {personas.map(p => (
+                  {personas.map((p) => (
                     <button
                       key={p.id}
                       type="button"
@@ -467,7 +525,9 @@ export default function SimulatePage() {
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{p.emoji}</span>
-                        <span className={`text-[11px] font-bold ${selectedPersonaId === p.id ? "text-violet-300" : "text-white"}`}>
+                        <span
+                          className={`text-[11px] font-bold ${selectedPersonaId === p.id ? "text-violet-300" : "text-white"}`}
+                        >
                           {p.name}
                         </span>
                       </div>
@@ -478,10 +538,12 @@ export default function SimulatePage() {
               </div>
 
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">Ask a question or describe a dilemma</label>
+                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">
+                  Ask a question or describe a dilemma
+                </label>
                 <textarea
                   value={personaQuery}
-                  onChange={e => setPersonaQuery(e.target.value)}
+                  onChange={(e) => setPersonaQuery(e.target.value)}
                   placeholder="e.g. I am feeling extremely unmotivated to work on my side business today. How do I break this?"
                   rows={3}
                   className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700 resize-none"
@@ -493,7 +555,9 @@ export default function SimulatePage() {
           {activeMode === "why" && (
             <>
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-2 block">Suggested behavioral diagnostics</label>
+                <label className="text-xs text-zinc-500 font-medium mb-2 block">
+                  Suggested behavioral diagnostics
+                </label>
                 <div className="flex flex-col gap-1.5">
                   {diagnosticSuggestions.map((qText, idx) => (
                     <button
@@ -513,10 +577,12 @@ export default function SimulatePage() {
               </div>
 
               <div>
-                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">Or enter a custom question</label>
+                <label className="text-xs text-zinc-500 font-medium mb-1.5 block">
+                  Or enter a custom question
+                </label>
                 <input
                   value={whyQuestion}
-                  onChange={e => setWhyQuestion(e.target.value)}
+                  onChange={(e) => setWhyQuestion(e.target.value)}
                   placeholder="Why do I..."
                   className="w-full bg-[#13131e] border border-white/8 rounded-xl text-white text-sm px-4 py-3 outline-none focus:border-violet-600 transition-colors placeholder:text-zinc-700"
                 />
@@ -536,10 +602,15 @@ export default function SimulatePage() {
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Running Simulation...
             </>
-          ) : activeMode === "double" ? "What would I do?"
-            : activeMode === "alt-reality" ? "Simulate Parallel Timeline"
-            : activeMode === "persona" ? "Begin Consultation"
-            : "Analyze Habits"}
+          ) : activeMode === "double" ? (
+            "What would I do?"
+          ) : activeMode === "alt-reality" ? (
+            "Simulate Parallel Timeline"
+          ) : activeMode === "persona" ? (
+            "Begin Consultation"
+          ) : (
+            "Analyze Habits"
+          )}
         </button>
 
         {/* RESULTS CARD */}
@@ -547,11 +618,13 @@ export default function SimulatePage() {
           <div className="bg-[#13131e] border border-violet-700/40 rounded-2xl p-5 animate-in fade-in duration-500 shadow-[0_0_20px_rgba(139,92,246,0.04)]">
             <div className="flex items-center gap-2 mb-3.5">
               <Sparkles size={14} className="text-violet-400" />
-              <p className="text-violet-400 text-[10px] font-bold tracking-widest uppercase">{resultBadge}</p>
+              <p className="text-violet-400 text-[10px] font-bold tracking-widest uppercase">
+                {resultBadge}
+              </p>
             </div>
 
             <p className="text-white text-base font-bold mb-3">{resultTitle}</p>
-            
+
             <p className="text-violet-300 text-xs font-semibold leading-relaxed mb-3 bg-violet-950/20 border border-violet-900/30 p-3 rounded-xl">
               🔑 {result.predictedChoice}
             </p>
@@ -568,16 +641,20 @@ export default function SimulatePage() {
                 <span className="text-violet-400 font-mono">{result.confidence}</span>
               </div>
               <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-violet-500 rounded-full transition-all duration-500" 
-                  style={{ width: `${result.confidence ? (parseInt(result.confidence) || 0) : 0}%` }}
+                <div
+                  className="h-full bg-violet-500 rounded-full transition-all duration-500"
+                  style={{ width: `${result.confidence ? parseInt(result.confidence) || 0 : 0}%` }}
                 />
               </div>
             </div>
 
             <div className="border-t border-white/6 pt-4">
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-1">{matchLabel}</p>
-              <p className="text-zinc-300 text-xs font-semibold mb-2">→ {result.matchedDecision || "No matches"}</p>
+              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-1">
+                {matchLabel}
+              </p>
+              <p className="text-zinc-300 text-xs font-semibold mb-2">
+                → {result.matchedDecision || "No matches"}
+              </p>
               <p className="text-zinc-600 text-[9px] leading-relaxed">
                 Referenced {result.basedOn} decisions in your cognitive profile.
               </p>

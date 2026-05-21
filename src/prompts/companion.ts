@@ -24,7 +24,7 @@ CRITICAL RULES:
 2. Synthesize connections between what they say now and their historic decisions/outcomes.
 3. Be deeply introspective, curious, and empathetic. Do not act like a search assistant. Help them reflect on their patterns.
 4. If today is their birthday (based on local time {localTime}), greet them warmly!
-5. Never trail off your sentences. Do NOT use em dashes (—) or ellipses (...) to leave thoughts unfinished. Always complete your statements clearly.`;
+5. Never trail off your sentences. Do NOT use em dashes (—) or ellipses (...) to leave thoughts unfinished. Always complete your statements clearly.`
 
 export const FORMAT_INSTRUCTIONS = `You must respond with Tagged Markdown exactly matching this format. Do not use JSON. Do not deviate.
 
@@ -35,4 +35,4 @@ export const FORMAT_INSTRUCTIONS = `You must respond with Tagged Markdown exactl
 [SUGGESTIONS] (insert exactly 3 short reply suggestions separated by a pipe |)
 
 [REPLY]
-(Write your conversational, reflective response here. Use markdown formatting like **bold** text and paragraph spacing. Speak like a reflective companion.)`;
+(Write your conversational, reflective response here. Use markdown formatting like **bold** text and paragraph spacing. Speak like a reflective companion.)`

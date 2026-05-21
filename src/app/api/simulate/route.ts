@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { ChatOpenAI } from "@langchain/openai"
 import { ChatPromptTemplate } from "@langchain/core/prompts"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function POST(req: Request) {
   try {
@@ -15,28 +15,29 @@ export async function POST(req: Request) {
     const userId = (session.user as any).id
 
     const body = await req.json()
-    const { 
-      mode = "double", 
-      situation, 
-      decisionId, 
-      alternativeChoice, 
-      personaId, 
-      query, 
-      question 
+    const {
+      mode = "double",
+      situation,
+      decisionId,
+      alternativeChoice,
+      personaId,
+      query,
+      question,
     } = body
 
     // Fetch decisions of this user
     const decisions = await prisma.decision.findMany({
-      where: { userId }
+      where: { userId },
     })
 
     if (!decisions.length) {
-      return NextResponse.json({ 
-        predictedChoice: "No decisions found. Add some decisions to your log first to enable simulation.",
+      return NextResponse.json({
+        predictedChoice:
+          "No decisions found. Add some decisions to your log first to enable simulation.",
         matchedDecision: "None",
         basedOn: 0,
         confidence: "0%",
-        reasoning: "We need at least one past decision in your history to start simulating."
+        reasoning: "We need at least one past decision in your history to start simulating.",
       })
     }
 
@@ -52,8 +53,9 @@ export async function POST(req: Request) {
     })
 
     // Format decisions history for context
-    const historyText = decisions.map((d: any, index) => {
-      return `Decision #${index + 1}:
+    const historyText = decisions
+      .map((d: any, index) => {
+        return `Decision #${index + 1}:
 Title: ${d.title}
 Category: ${d.category}
 Situation: ${d.situation}
@@ -63,14 +65,18 @@ Emotion/Mood: ${d.emotion || "Neutral"}
 Stress level: ${d.stressLevel || 5}/10
 Outcome: ${d.outcome}
 Regret Score: ${d.regretScore || 0}/10`
-    }).join("\n\n")
+      })
+      .join("\n\n")
 
     let systemPrompt = ""
     let userPromptText = ""
 
     if (mode === "double") {
       if (!situation) {
-        return NextResponse.json({ error: "situation is required for double mode" }, { status: 400 })
+        return NextResponse.json(
+          { error: "situation is required for double mode" },
+          { status: 400 }
+        )
       }
       systemPrompt = `You are MirrorMind, the user's reflective cognitive double and decision simulation engine. 
 Your task is to analyze the user's past decision history and predict what choice they would make in a new situation.
@@ -85,15 +91,20 @@ You must output a raw, valid JSON object with the following fields:
 Do not wrap the JSON in markdown code blocks like \`\`\`json. Output only the raw JSON.`
 
       userPromptText = `USER DECISION HISTORY:\n{history}\n\nNEW SITUATION:\n${situation}\n\nPredict what I would do:`
-
     } else if (mode === "alt-reality") {
       if (!decisionId || !alternativeChoice) {
-        return NextResponse.json({ error: "decisionId and alternativeChoice are required for alt-reality mode" }, { status: 400 })
+        return NextResponse.json(
+          { error: "decisionId and alternativeChoice are required for alt-reality mode" },
+          { status: 400 }
+        )
       }
-      
-      const targetDecision = decisions.find(d => d.id === decisionId)
+
+      const targetDecision = decisions.find((d) => d.id === decisionId)
       if (!targetDecision) {
-        return NextResponse.json({ error: "Target decision not found in your history" }, { status: 404 })
+        return NextResponse.json(
+          { error: "Target decision not found in your history" },
+          { status: 404 }
+        )
       }
 
       systemPrompt = `You are MirrorMind's Parallel Timeline Simulator.
@@ -109,10 +120,12 @@ You must output a raw, valid JSON object with the following fields:
 Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
 
       userPromptText = `USER DECISION HISTORY:\n{history}\n\nTARGET DECISION TO SIMULATE ALTERNATE PATH:\nTitle: ${targetDecision.title}\nSituation: ${targetDecision.situation}\nActual Choice Made: ${targetDecision.choice}\nActual Outcome: ${targetDecision.outcome}\n\nALTERNATIVE CHOICE USER COULD HAVE MADE:\n${alternativeChoice}\n\nSimulate this alternate timeline:`
-
     } else if (mode === "persona") {
       if (!personaId || !query) {
-        return NextResponse.json({ error: "personaId and query are required for persona mode" }, { status: 400 })
+        return NextResponse.json(
+          { error: "personaId and query are required for persona mode" },
+          { status: 400 }
+        )
       }
 
       let personaName = ""
@@ -121,23 +134,28 @@ Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
       switch (personaId) {
         case "future":
           personaName = "Your Future Self (5 Years Later)"
-          personaRule = "You are the user's future self. Speak with wisdom, hindsight, and gentle caution. Reflect on the choices they are making now and guide them based on where their patterns will lead them."
+          personaRule =
+            "You are the user's future self. Speak with wisdom, hindsight, and gentle caution. Reflect on the choices they are making now and guide them based on where their patterns will lead them."
           break
         case "past":
           personaName = "Your Past Self (5 Years Ago)"
-          personaRule = "You are the user's past self. Speak with younger idealism, curiosity, and slight insecurity. Remind them of the core dreams, concerns, and values they held 5 years ago, and ask them reflective questions."
+          personaRule =
+            "You are the user's past self. Speak with younger idealism, curiosity, and slight insecurity. Remind them of the core dreams, concerns, and values they held 5 years ago, and ask them reflective questions."
           break
         case "confident":
           personaName = "Your Confident Self"
-          personaRule = "You are the user's ultimate confident, ambitious, and bold self. Highlight their strengths, push them to take high-growth risks, cut through fear, and encourage bold actions."
+          personaRule =
+            "You are the user's ultimate confident, ambitious, and bold self. Highlight their strengths, push them to take high-growth risks, cut through fear, and encourage bold actions."
           break
         case "rational":
           personaName = "The Brutal Rationalist"
-          personaRule = "You are the user's inner brutal analyst. Strip away all rationalizations, emotions, excuses, and comfortable lies. Provide unvarnished logical analysis, calling out self-sabotaging patterns directly."
+          personaRule =
+            "You are the user's inner brutal analyst. Strip away all rationalizations, emotions, excuses, and comfortable lies. Provide unvarnished logical analysis, calling out self-sabotaging patterns directly."
           break
         case "stoic":
           personaName = "The Stoic Mentor"
-          personaRule = "You are a Stoic mentor inspired by Marcus Aurelius and Seneca. Speak of duty, control over self, acceptance of fate, and focusing only on what is in one's power. Help the user find mental tranquility."
+          personaRule =
+            "You are a Stoic mentor inspired by Marcus Aurelius and Seneca. Speak of duty, control over self, acceptance of fate, and focusing only on what is in one's power. Help the user find mental tranquility."
           break
         default:
           personaName = "Mirror Double"
@@ -158,10 +176,12 @@ You must output a raw, valid JSON object with the following fields:
 Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
 
       userPromptText = `USER DECISION HISTORY:\n{history}\n\nUSER'S CURRENT DILEMMA / QUERY:\n${query}\n\nRespond to me as ${personaName}:`
-
     } else if (mode === "why-am-i-like-this") {
       if (!question) {
-        return NextResponse.json({ error: "question is required for why-am-i-like-this mode" }, { status: 400 })
+        return NextResponse.json(
+          { error: "question is required for why-am-i-like-this mode" },
+          { status: 400 }
+        )
       }
 
       systemPrompt = `You are MirrorMind's core Behavioral Pattern Analyzer.
@@ -181,12 +201,12 @@ Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
 
     const prompt = ChatPromptTemplate.fromMessages([
       ["system", systemPrompt],
-      ["user", userPromptText]
+      ["user", userPromptText],
     ])
 
     const chain = prompt.pipe(llm)
     const response = await chain.invoke({
-      history: historyText
+      history: historyText,
     })
 
     const rawContent = (response.content as string).trim()
@@ -212,7 +232,8 @@ Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
         matchedDecision: decisions[0].title,
         basedOn: decisions.length,
         confidence: "70%",
-        reasoning: "The reflection engine encountered a format error, but historically you favor deliberate, calculated choices."
+        reasoning:
+          "The reflection engine encountered a format error, but historically you favor deliberate, calculated choices.",
       })
     }
 
@@ -221,7 +242,7 @@ Do not wrap the JSON in markdown code blocks. Output only raw JSON.`
       matchedDecision: result.matchedDecision,
       basedOn: decisions.length,
       confidence: result.confidence,
-      reasoning: result.reasoning
+      reasoning: result.reasoning,
     })
   } catch (error: any) {
     console.error("Simulation route error:", error)

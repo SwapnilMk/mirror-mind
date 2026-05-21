@@ -15,13 +15,13 @@ const tabs = [
 export default function BottomNav() {
   const pathname = usePathname()
 
-  const isPublicRoute = ["/login", "/signup", "/"].includes(pathname);
-  if (isPublicRoute) return null;
+  const isPublicRoute = ["/login", "/signup", "/"].includes(pathname)
+  if (isPublicRoute) return null
 
   return (
     <div className="flex items-center justify-around border border-white/5 bg-[#0d0d14]/90 backdrop-blur-xl py-3 px-2 h-[72px] sm:rounded-t-[32px] shadow-2xl">
       {tabs.map((tab) => {
-        const active = pathname === tab.href;
+        const active = pathname === tab.href
         return (
           <Link
             key={tab.id}
@@ -29,12 +29,14 @@ export default function BottomNav() {
             className="flex flex-col items-center gap-1 px-3 py-1 transition-colors"
           >
             <tab.icon size={20} className={active ? "text-primary" : "text-zinc-600"} />
-            <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-zinc-600"}`}>
+            <span
+              className={`text-[10px] font-medium ${active ? "text-primary" : "text-zinc-600"}`}
+            >
               {tab.label}
             </span>
           </Link>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

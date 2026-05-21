@@ -1,0 +1,16 @@
+# Ignore native Android project folders
+android/
+capacitor-cordova-android-plugins/
+
+# Ignore dependency and build directories
+node_modules/
+.next/
+out/
+build/
+.gradle/
+dist/
+
+# Ignore lock and database files
+package-lock.json
+prisma/dev.db
+prisma/dev.db-journal

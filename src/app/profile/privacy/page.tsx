@@ -28,7 +28,7 @@ export default function PrivacyPage() {
     setClearing(true)
     try {
       const res = await fetch("/api/decisions?id=all", {
-        method: "DELETE"
+        method: "DELETE",
       })
 
       if (!res.ok) throw new Error("Failed to delete decisions archive")
@@ -70,7 +70,8 @@ export default function PrivacyPage() {
 
         <h1 className="text-xl font-bold text-white mb-2">Privacy & Security</h1>
         <p className="text-zinc-500 text-xs mb-8">
-          Manage your personal data archive, review operational security parameters, and configure retention policies.
+          Manage your personal data archive, review operational security parameters, and configure
+          retention policies.
         </p>
 
         {/* Security Summary Cards */}
@@ -83,7 +84,8 @@ export default function PrivacyPage() {
             <div>
               <h3 className="text-white text-sm font-bold">Encrypted Storage</h3>
               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">
-                All decision logs and cognitive profiles are stored in MongoDB Atlas with active AES-256 encryption at rest and SSL/TLS transport encryption.
+                All decision logs and cognitive profiles are stored in MongoDB Atlas with active
+                AES-256 encryption at rest and SSL/TLS transport encryption.
               </p>
             </div>
           </div>
@@ -96,7 +98,8 @@ export default function PrivacyPage() {
             <div>
               <h3 className="text-white text-sm font-bold">Zero-Data-Retention LLM Calls</h3>
               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">
-                Our AI connections to OpenAI and Anthropic are designated under enterprise policies: your inputs are never cached for training public LLM models.
+                Our AI connections to OpenAI and Anthropic are designated under enterprise policies:
+                your inputs are never cached for training public LLM models.
               </p>
             </div>
           </div>
@@ -111,7 +114,9 @@ export default function PrivacyPage() {
               <div className="mt-2 space-y-1">
                 <div className="flex justify-between text-[11px]">
                   <span className="text-zinc-500">Account:</span>
-                  <span className="text-zinc-300 font-medium">{session?.user?.email || "Unknown"}</span>
+                  <span className="text-zinc-300 font-medium">
+                    {session?.user?.email || "Unknown"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-zinc-500">Security Strategy:</span>
@@ -135,7 +140,8 @@ export default function PrivacyPage() {
             <h3 className="text-red-400 text-sm font-bold">Danger Zone</h3>
           </div>
           <p className="text-zinc-500 text-xs leading-relaxed mb-4">
-            Erasing your archive will permanently delete all decision logs, stress metrics, regret scores, and behavioral profiling stats. This cannot be undone.
+            Erasing your archive will permanently delete all decision logs, stress metrics, regret
+            scores, and behavioral profiling stats. This cannot be undone.
           </p>
           <button
             onClick={() => setShowClearModal(true)}
@@ -152,16 +158,19 @@ export default function PrivacyPage() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end justify-center z-[110] px-4 pb-10">
           <div className="bg-[#1a1a27] border border-white/10 rounded-[32px] p-6 w-full max-w-sm animate-in slide-in-from-bottom duration-300">
             <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
-            <h3 className="text-white font-bold text-lg mb-2 text-center">Confirm Permanent Erasure</h3>
+            <h3 className="text-white font-bold text-lg mb-2 text-center">
+              Confirm Permanent Erasure
+            </h3>
             <p className="text-zinc-500 text-xs text-center mb-6 leading-relaxed">
-              This action will destroy all logged entries in your MongoDB database. Please type <span className="text-red-400 font-bold">DELETE</span> to authorize.
+              This action will destroy all logged entries in your MongoDB database. Please type{" "}
+              <span className="text-red-400 font-bold">DELETE</span> to authorize.
             </p>
 
             <input
               type="text"
               placeholder="Type DELETE here"
               value={confirmText}
-              onChange={e => setConfirmText(e.target.value)}
+              onChange={(e) => setConfirmText(e.target.value)}
               className="w-full bg-[#13131e] border border-white/8 rounded-xl px-4 py-3 text-sm text-center text-red-400 placeholder:text-zinc-700 focus:outline-none focus:border-red-500 mb-5"
             />
 
